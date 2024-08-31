@@ -3,23 +3,23 @@
 install_ubuntu() {
   echo "Detected Ubuntu. Installing dependencies..."
   sudo apt-get update
-  sudo apt-get install -y build-essential libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libasound2-dev
+  sudo apt-get install -y build-essential libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libasound2-dev libxxf86vm-dev
 }
 
 install_fedora() {
   echo "Detected Fedora. Installing dependencies..."
-  sudo dnf install -y @development-tools mesa-libGL-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel alsa-lib-devel
+  sudo dnf install -y @development-tools mesa-libGL-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel alsa-lib-devel libXxf86vm-devel
 }
 
 install_arch() {
   echo "Detected Arch Linux. Installing dependencies..."
-  sudo pacman -Sy --needed base-devel mesa libxrandr libxinerama libxcursor libxi alsa-lib
+  sudo pacman -Sy --needed base-devel mesa libxrandr libxinerama libxcursor libxi alsa-lib libxxf86vm
 }
 
 install_opensuse() {
   echo "Detected openSUSE. Installing dependencies..."
   sudo zypper install -t pattern devel_basis
-  sudo zypper install libGL-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel alsa-devel
+  sudo zypper install libGL-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel alsa-devel libXxf86vm1 libXxf86vm-devel
 }
 
 install_xcode_select() {
