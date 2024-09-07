@@ -44,19 +44,6 @@ func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorder
 		screenWidth:      screenWidth,
 		fieldBorderWidth: fieldBorderWidth,
 	}
-
-	// , &Player{
-	// 	name:          player2Name,
-	// 	bouncerHeight: bouncerHeight,
-	// 	bouncerWidth:  bouncerWidth,
-	// 	position: geometry.Vector{
-	// 		X: screenWidth - 25,
-	// 		Y: (screenHeight - bouncerHeight) / 2,
-	// 	},
-	// 	screenHeight:     screenHeight,
-	// 	screenWidth:      screenWidth,
-	// 	fieldBorderWidth: fieldBorderWidth,
-	// }
 }
 
 func (p *Player) Update(up, down ebiten.Key) {
