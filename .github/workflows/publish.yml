@@ -27,7 +27,7 @@ jobs:
           cache: false
       - 
         name: Build
-        run: go build -o web/game.wasm
+        run: go build -o web/game.wasm ./cmd/game
         env:
           GOOS: js
           GOARCH: wasm
