@@ -1,0 +1,47 @@
+name: Publish Web Assembly
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      - 
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          check-latest: true
+          cache: false
+      - 
+        name: Build
+        run: go build -o web/game.wasm
+        env:
+          GOOS: js
+          GOARCH: wasm
+      - 
+        name: Copy wasm_exec.js
+        run: cp $(go env GOROOT)/misc/wasm/wasm_exec.js web/
+      - 
+        uses: actions/configure-pages@v5
+      - 
+        name: Upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - 
+        name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
