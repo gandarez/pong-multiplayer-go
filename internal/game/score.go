@@ -1,4 +1,4 @@
-package engine
+package game
 
 import (
 	"image/color"
@@ -7,8 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/gandarez/pong-multiplayer-go/internal/geometry"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 type score struct {

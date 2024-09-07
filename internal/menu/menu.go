@@ -10,8 +10,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gandarez/pong-multiplayer-go/assets"
-	"github.com/gandarez/pong-multiplayer-go/internal/geometry"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 const (

@@ -6,13 +6,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/gandarez/pong-multiplayer-go/assets"
-	"github.com/gandarez/pong-multiplayer-go/internal/engine"
+	"github.com/gandarez/pong-multiplayer-go/internal/game"
 )
 
 const title = "PONGO"
 
 func main() {
-	ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)
+	ebiten.SetWindowSize(game.ScreenWidth*2, game.ScreenHeight*2)
 	ebiten.SetWindowTitle(title)
 
 	// load all assets
@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("failed to load assets: %s", err)
 	}
 
-	game, err := engine.New(assets)
+	game, err := game.New(assets)
 	if err != nil {
 		log.Fatalf("failed to create game: %s", err)
 	}

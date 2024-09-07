@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/gandarez/pong-multiplayer-go/internal/geometry"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 // Text represents a text to be drawn on the screen.

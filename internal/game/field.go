@@ -1,4 +1,4 @@
-package engine
+package game
 
 import (
 	"image/color"
@@ -6,14 +6,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const fieldWidth = 10
+// fieldBorderWidth is the width of top and bottom field borders
+const fieldBorderWidth = 10
 
 func (g *Game) drawField(screen *ebiten.Image) {
 	// draw field limits
 	for x := 0; x <= ScreenWidth; x++ {
-		for y := 0; y <= fieldWidth; y++ {
+		for y := 0; y <= fieldBorderWidth; y++ {
 			screen.Set(x, y, color.RGBA{200, 200, 200, 255})
-			screen.Set(x, y+ScreenHeight-fieldWidth, color.RGBA{200, 200, 200, 255})
+			screen.Set(x, y+ScreenHeight-fieldBorderWidth, color.RGBA{200, 200, 200, 255})
 		}
 	}
 

@@ -1,4 +1,4 @@
-package engine
+package game
 
 import (
 	"fmt"
@@ -8,8 +8,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/gandarez/pong-multiplayer-go/assets"
-	"github.com/gandarez/pong-multiplayer-go/internal/geometry"
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
+	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
+	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 const (
@@ -22,7 +24,7 @@ type Game struct {
 	menu   *menu.Menu
 
 	ball     *ball
-	nextSide string // it will be used to determine which side will start the game
+	nextSide geometry.Side // it will be used to determine which side will start the game
 
 	// players
 	player1 *player
@@ -49,24 +51,27 @@ func New(assets *assets.Assets) (*Game, error) {
 		Size:   44,
 	}
 
-	p1, p2 := newPlayers()
+	p1 := engineplayer.New("Player 1", geometry.Left, ScreenWidth, ScreenHeight, 10)
+	p2 := engineplayer.New("Player 2", geometry.Right, ScreenWidth, ScreenHeight, 10)
 
 	score1AdjustmentPositionX, _ := text.Measure("0", pongScoreFontFace, 1)
 
-	var nextPlayer string
+	var nextPlayer geometry.Side
 	if rand.Intn(2) == 0 {
-		nextPlayer = player1Name
+		nextPlayer = geometry.Left
 	} else {
-		nextPlayer = player2Name
+		nextPlayer = geometry.Right
 	}
 
 	return &Game{
-		assets:   assets,
-		menu:     menu,
-		ball:     newBall(nextPlayer),
+		assets: assets,
+		menu:   menu,
+		ball: &ball{
+			engineball.New(nextPlayer, ScreenWidth, ScreenHeight),
+		},
 		nextSide: nextPlayer,
-		player1:  p1,
-		player2:  p2,
+		player1:  &player{p1},
+		player2:  &player{p2},
 		score1: &score{
 			textFace: pongScoreFontFace,
 			position: geometry.Vector{
@@ -114,28 +119,27 @@ func (g *Game) Update() error {
 	}
 
 	// update the players
-	g.player1.update(ebiten.KeyQ, ebiten.KeyA)
-	g.player2.update(ebiten.KeyUp, ebiten.KeyDown)
+	g.player1.Update(ebiten.KeyQ, ebiten.KeyA)
+	g.player2.Update(ebiten.KeyUp, ebiten.KeyDown)
 
 	// update the ball
-	g.ball.update()
-	g.ball.bounce(g.player1.bounds(), g.player2.bounds())
+	g.ball.Update(g.player1.Bounds(), g.player2.Bounds())
 
 	// check if the ball is out of the field and update the scores
-	if out, side := g.ball.checkGoal(); out {
+	if out, side := g.ball.CheckGoal(); out {
 		if side == geometry.Left {
 			g.score2.value++
 		} else {
 			g.score1.value++
 		}
 
-		if g.nextSide == player1Name {
-			g.nextSide = player2Name
+		if g.nextSide == geometry.Left {
+			g.nextSide = geometry.Right
 		} else {
-			g.nextSide = player1Name
+			g.nextSide = geometry.Left
 		}
 
-		g.ball = newBall(g.nextSide)
+		g.ball = &ball{g.ball.Reset(g.nextSide)}
 	}
 
 	return nil
