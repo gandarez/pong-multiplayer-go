@@ -24,10 +24,6 @@ jobs:
         with:
           go-version: '1.23'
 
-      - name: Install dependencies
-        run: |
-          make install-deps
-
       - name: Build for ${{ matrix.os }} on ${{ matrix.arch }}
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
@@ -41,6 +37,11 @@ jobs:
 
           export GOARCH=${{ matrix.arch }}
           make build
+
+
+      - name: Install dependencies
+        run: |
+          make install-deps
 
       - name: Archive built binaries
         run: |
