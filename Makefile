@@ -5,7 +5,7 @@ BINARY_NAME=pongo
 all: build
 
 build:
-	go build -o $(BINARY_NAME) main.go
+	go build -o $(BINARY_NAME) cmd/game/main.go
 
 run: build
 	./$(BINARY_NAME)
