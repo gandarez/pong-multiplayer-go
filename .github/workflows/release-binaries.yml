@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*.*.*'
 
+concurrency:
+  group: release-binaries
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build and Release for multiple platforms
