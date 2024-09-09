@@ -6,18 +6,9 @@ import (
 
 const cpuSpeed = 2
 
-// CPU is the AI of the game.
-type CPU struct {
-}
-
-// NewCPU creates a new CPU.
-func NewCPU() *CPU {
-	return &CPU{}
-}
-
 // GuessBallPosition returns the new position of the enemy paddle based on the ball position.
 // It returns the new Y position of the enemy paddle.
-func (CPU) GuessBallPosition(ballY, enemyY, enemyHeight, screenHeight float64) float64 {
+func GuessBallPosition(ballY, enemyY, enemyHeight, screenHeight float64) float64 {
 	delta := float64(rand.Intn(15)) // nolint: gosec
 
 	if enemyY < ballY-delta {

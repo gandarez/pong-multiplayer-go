@@ -37,9 +37,6 @@ type Game struct {
 	// scores
 	score1 *score
 	score2 *score
-
-	// cpu
-	cpu *ai.CPU
 }
 
 // New creates a new game.
@@ -76,7 +73,6 @@ func New(assets *assets.Assets) (*Game, error) {
 		ball: &ball{
 			engineball.New(nextPlayer, ScreenWidth, ScreenHeight),
 		},
-		cpu:      ai.NewCPU(),
 		menu:     menu,
 		nextSide: nextPlayer,
 		player1:  &player{p1},
@@ -112,7 +108,7 @@ func (g *Game) Update() error {
 	switch g.menu.GameMode() {
 	case menu.OnePlayer:
 		// guess ball position
-		y := g.cpu.GuessBallPosition(
+		y := ai.GuessBallPosition(
 			g.ball.Bounds().Y,
 			g.player1.Position().Y,
 			g.player1.BouncerHeight(),
