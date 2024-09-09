@@ -1,0 +1,206 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  GO_VERSION_FILE: "go.mod"
+  CHECK_LATEST: true
+  GO_CACHE: false
+  LINTER_SKIP_CACHE: true
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Pull dependencies
+        run: make install-deps
+      -
+        name: Unit tests
+        run: make test
+      -
+        name: Linter
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          skip-cache: ${{ env.LINTER_SKIP_CACHE }}
+
+  test-windows:
+    name: Unit Tests Windows
+    runs-on: windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Pull dependencies
+        run: make install-deps
+      -
+        name: Unit tests
+        run: make test
+      -
+        name: Linter
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          skip-cache: ${{ env.LINTER_SKIP_CACHE }}
+
+  test-darwin:
+    name: Unit Tests Darwin
+    runs-on: macos-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Pull dependencies
+        run: make install-deps
+      -
+        name: Unit tests
+        run: make test
+      -
+        name: Linter
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          skip-cache: ${{ env.LINTER_SKIP_CACHE }}
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Build binaries
+        shell: bash
+        # 2 is the number of virtual cpus for Linux. macOS is 3.
+        run: make -j2 build-all-linux
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-linux
+          path: build/
+
+  build-darwin:
+    name: Build Darwin
+    runs-on: macos-latest
+    needs: [test-darwin]
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Build binaries
+        shell: bash
+        # 3 is the number of virtual cpus for macOS. Linux is only 2.
+        run: make -j3 build-all-darwin
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-darwin
+          path: build/
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    needs: [test-windows]
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
+      -
+        name: Build binaries
+        shell: bash
+        # 2 is the number of virtual cpus for Windows. macOS is 3.
+        run: make -j2 build-all-windows
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-windows
+          path: build/
+      
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-darwin, build-windows]
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      -
+        name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: binaries-*
+          merge-multiple: true
+          path: build/
+      -
+        name: Prepare release assets
+        run: ./scripts/prepare-assets.sh
+      -
+        name: "Create release"
+        uses: softprops/action-gh-release@master
+        with:
+          target_commitish: ${{ github.sha }}
+          prerelease: false
+          draft: false
+          generate_release_notes: true
+          make_latest: true
+          files: ./release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
