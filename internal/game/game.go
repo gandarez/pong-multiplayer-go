@@ -16,10 +16,13 @@ import (
 )
 
 const (
-	ScreenWidth  = 640
+	// ScreenWidth is the width of the screen.
+	ScreenWidth = 640
+	// ScreenHeight is the height of the screen.
 	ScreenHeight = 480
 )
 
+// Game represents the game and implements the ebiten.Game interface.
 type Game struct {
 	assets *assets.Assets
 	menu   *menu.Menu
@@ -36,9 +39,10 @@ type Game struct {
 	score2 *score
 
 	// cpu
-	cpu *ai.Cpu
+	cpu *ai.CPU
 }
 
+// New creates a new game.
 func New(assets *assets.Assets) (*Game, error) {
 	menu, err := menu.New(assets, ScreenWidth)
 	if err != nil {
@@ -61,7 +65,7 @@ func New(assets *assets.Assets) (*Game, error) {
 	score1AdjustmentPositionX, _ := text.Measure("0", pongScoreFontFace, 1)
 
 	var nextPlayer geometry.Side
-	if rand.Intn(2) == 0 {
+	if rand.Intn(2) == 0 { // nolint: gosec
 		nextPlayer = geometry.Left
 	} else {
 		nextPlayer = geometry.Right
@@ -72,7 +76,7 @@ func New(assets *assets.Assets) (*Game, error) {
 		ball: &ball{
 			engineball.New(nextPlayer, ScreenWidth, ScreenHeight),
 		},
-		cpu:      ai.NewCpu(),
+		cpu:      ai.NewCPU(),
 		menu:     menu,
 		nextSide: nextPlayer,
 		player1:  &player{p1},
@@ -94,6 +98,7 @@ func New(assets *assets.Assets) (*Game, error) {
 	}, nil
 }
 
+// Update updates the game.
 func (g *Game) Update() error {
 	// if the game is not ready to play, udpate the menu
 	if !g.menu.IsReadyToPlay() {
@@ -143,6 +148,7 @@ func (g *Game) Update() error {
 	return nil
 }
 
+// Draw draws the game.
 func (g *Game) Draw(screen *ebiten.Image) {
 	// if the game is not ready to play, draw the menu
 	if !g.menu.IsReadyToPlay() {
@@ -166,6 +172,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.player2.draw(screen)
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+// Layout returns the screen width and height.
+func (Game) Layout(_, _ int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }

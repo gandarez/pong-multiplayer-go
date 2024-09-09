@@ -37,9 +37,13 @@ const (
 type GameMode int
 
 const (
+	// Undefined represents an undefined/unset game mode.
 	Undefined GameMode = iota
+	// OnePlayer represents a single player game mode.
 	OnePlayer
+	// TwoPlayers represents a two players game mode.
 	TwoPlayers
+	// Multiplayer represents a multiplayer game mode.
 	Multiplayer
 )
 
@@ -218,6 +222,7 @@ func (m *Menu) Draw(screen *ebiten.Image) {
 	}
 }
 
+// Update updates the menu state.
 func (m *Menu) Update() {
 	// key down
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
@@ -291,10 +296,12 @@ func (m *Menu) Update() {
 	}
 }
 
+// IsReadyToPlay returns true if the game is ready to play.
 func (m *Menu) IsReadyToPlay() bool {
 	return m.readyToPlay
 }
 
+// GameMode returns the game mode.
 func (m *Menu) GameMode() GameMode {
 	return m.gameMode
 }

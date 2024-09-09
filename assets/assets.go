@@ -13,10 +13,12 @@ import (
 //go:embed fonts/*.ttf
 var _fonts embed.FS
 
+// Assets contains all the assets of the game.
 type Assets struct {
 	fonts map[string][]byte
 }
 
+// Load loads all the assets of the game.
 func Load() (*Assets, error) {
 	assets := new(Assets)
 
@@ -40,6 +42,7 @@ func Load() (*Assets, error) {
 	return assets, nil
 }
 
+// NewTextFaceSource creates a new text face source from the given font key.
 func (a *Assets) NewTextFaceSource(key string) (*text.GoTextFaceSource, error) {
 	data, ok := a.fonts[key]
 	if !ok {
@@ -54,6 +57,7 @@ func (a *Assets) NewTextFaceSource(key string) (*text.GoTextFaceSource, error) {
 	return tt, nil
 }
 
+// AllFonts returns all the fonts keys.
 func (a *Assets) AllFonts() []string {
 	return slices.Collect(maps.Keys(a.fonts))
 }

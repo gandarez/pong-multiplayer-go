@@ -46,6 +46,7 @@ func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorder
 	}
 }
 
+// Update updates the player position based on the keys pressed.
 func (p *Player) Update(up, down ebiten.Key) {
 	switch {
 	case ebiten.IsKeyPressed(up):
@@ -67,6 +68,7 @@ func (p *Player) keepInBounds() {
 	}
 }
 
+// Bounds returns the bounds of the player.
 func (p *Player) Bounds() geometry.Rect {
 	return geometry.Rect{
 		X:      p.position.X,
@@ -76,24 +78,29 @@ func (p *Player) Bounds() geometry.Rect {
 	}
 }
 
+// BouncerWidth returns the width of the player bouncer.
 func (p *Player) BouncerWidth() float64 {
 	return p.bouncerWidth
 }
 
+// BouncerHeight returns the height of the player bouncer.
 func (p *Player) BouncerHeight() float64 {
 	return p.bouncerHeight
 }
 
+// Position returns the position of the player.
 func (p *Player) Position() geometry.Vector {
 	return p.position
 }
 
+// SetPosition sets the Y position of the player.
 func (p *Player) SetPosition(y float64) {
 	p.position.Y = y
 
 	p.keepInBounds()
 }
 
+// Name returns the name of the player.
 func (p *Player) Name() string {
 	return p.name
 }

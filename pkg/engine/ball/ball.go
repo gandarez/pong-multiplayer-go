@@ -76,15 +76,15 @@ func (b *Ball) bounce(p1Bounds, p2Bounds geometry.Rect) {
 
 	// left bouncer or right bouncer
 	if p1Bounds.Intersects(b.Bounds()) || p2Bounds.Intersects(b.Bounds()) {
-		b.randomBounce()
 		b.bounces++
 
+		b.randomBounce()
 		b.increaseSpeed()
 	}
 }
 
 func (b *Ball) randomBounce() {
-	b.angle = 180 - b.angle - width + 20*rand.Float64()
+	b.angle = 180 - b.angle - width + 20*rand.Float64() // nolint: gosec
 }
 
 func (b *Ball) increaseSpeed() {
@@ -128,8 +128,8 @@ func (b *Ball) Position() geometry.Vector {
 
 func calcInitialAngle(nextSide geometry.Side) float64 {
 	if nextSide == geometry.Left {
-		return -45 + float64(rand.Intn(91))
+		return -45 + float64(rand.Intn(91)) // nolint: gosec
 	}
 
-	return 135 + float64(rand.Intn(91))
+	return 135 + float64(rand.Intn(91)) // nolint: gosec
 }
