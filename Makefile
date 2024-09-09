@@ -65,7 +65,7 @@ build:
 		-o ${BUILD_DIR}/$(BINARY_NAME)-$(GOOS)-$(GOARCH)$(FILE_EXT) ./cmd/game/main.go
 
 build-windows:
-	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBUILD) -v \
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBUILD) -v \
 		-o ${BUILD_DIR}/$(BINARY_NAME)-$(GOOS)-$(GOARCH).exe ./cmd/game/main.go
 
 install: install-deps install-linter
