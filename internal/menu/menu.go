@@ -19,7 +19,7 @@ const (
 	localModeStr               = "Local Mode"
 	multiplayerStr             = "Multiplayer"
 	multiplayerFindOpponentStr = "Finding opponent.."
-	onePlayerStr               = "One Player (Deactivated)"
+	onePlayerStr               = "One Player"
 	twoPlayersStr              = "Two Players"
 	backStr                    = "Back"
 )
@@ -33,20 +33,20 @@ const (
 	multiplayerMode
 )
 
-// gameMode is the game mode.
-type gameMode int
+// GameMode is the game mode.
+type GameMode int
 
 const (
-	undefined gameMode = iota
-	onePlayer
-	twoPlayers
-	multiplayer
+	Undefined GameMode = iota
+	OnePlayer
+	TwoPlayers
+	Multiplayer
 )
 
 // Menu represents the game menu.
 type Menu struct {
 	mainTitleTextFace *text.GoTextFace
-	gameMode          gameMode
+	gameMode          GameMode
 	state             state
 	selectedOption    int8
 	screenWidth       float64
@@ -67,7 +67,7 @@ func New(assets *assets.Assets, screenWidth int) (*Menu, error) {
 
 	return &Menu{
 		mainTitleTextFace: mainTitleTextFace,
-		gameMode:          undefined,
+		gameMode:          Undefined,
 		state:             mainMenu,
 		screenWidth:       float64(screenWidth),
 	}, nil
@@ -273,15 +273,15 @@ func (m *Menu) Update() {
 			switch m.selectedOption {
 			case 0:
 				// single player
-				// m.gameMode = onePlayer
-				// m.readyToPlay = true
+				m.gameMode = OnePlayer
+				m.readyToPlay = true
 			case 1:
 				// two players
-				m.gameMode = twoPlayers
+				m.gameMode = TwoPlayers
 				m.readyToPlay = true
 			case 2:
 				m.state = mainMenu
-				m.gameMode = undefined
+				m.gameMode = Undefined
 				m.readyToPlay = false
 				m.selectedOption = 0
 			}
@@ -295,6 +295,6 @@ func (m *Menu) IsReadyToPlay() bool {
 	return m.readyToPlay
 }
 
-func (m *Menu) GameMode() gameMode {
+func (m *Menu) GameMode() GameMode {
 	return m.gameMode
 }

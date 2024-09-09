@@ -9,6 +9,7 @@ import (
 
 const (
 	initialSpeed = 2
+	maxSpeed     = 6
 	width        = 10
 )
 
@@ -70,18 +71,33 @@ func (b *Ball) bounce(p1Bounds, p2Bounds geometry.Rect) {
 		b.angle *= -1
 		b.bounces++
 
-		return
+		b.increaseSpeed()
 	}
 
 	// left bouncer or right bouncer
 	if p1Bounds.Intersects(b.Bounds()) || p2Bounds.Intersects(b.Bounds()) {
 		b.randomBounce()
 		b.bounces++
+
+		b.increaseSpeed()
 	}
 }
 
 func (b *Ball) randomBounce() {
 	b.angle = 180 - b.angle - width + 20*rand.Float64()
+}
+
+func (b *Ball) increaseSpeed() {
+	if b.bounces%2 != 0 {
+		return
+	}
+
+	b.speed += 0.5
+
+	if b.speed > maxSpeed {
+		b.speed = maxSpeed
+		return
+	}
 }
 
 // CheckGoal checks if the ball is out of the field and returns true if it is.

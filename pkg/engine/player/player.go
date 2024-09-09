@@ -47,22 +47,23 @@ func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorder
 }
 
 func (p *Player) Update(up, down ebiten.Key) {
-	if ebiten.IsKeyPressed(up) {
-		if p.position.Y <= p.fieldBorderWidth {
-			return
-		}
-
+	switch {
+	case ebiten.IsKeyPressed(up):
 		p.position.Y -= movementSpeed
-		return
+	case ebiten.IsKeyPressed(down):
+		p.position.Y += movementSpeed
 	}
 
-	if ebiten.IsKeyPressed(down) {
-		if p.position.Y > p.screenHeight-p.bouncerHeight-p.fieldBorderWidth {
-			return
-		}
+	p.keepInBounds()
+}
 
-		p.position.Y += movementSpeed
-		return
+func (p *Player) keepInBounds() {
+	if p.position.Y < p.fieldBorderWidth {
+		p.position.Y = p.fieldBorderWidth
+	}
+
+	if p.position.Y > p.screenHeight-p.bouncerHeight-p.fieldBorderWidth {
+		p.position.Y = p.screenHeight - p.bouncerHeight - p.fieldBorderWidth
 	}
 }
 
@@ -85,4 +86,14 @@ func (p *Player) BouncerHeight() float64 {
 
 func (p *Player) Position() geometry.Vector {
 	return p.position
+}
+
+func (p *Player) SetPosition(y float64) {
+	p.position.Y = y
+
+	p.keepInBounds()
+}
+
+func (p *Player) Name() string {
+	return p.name
 }
