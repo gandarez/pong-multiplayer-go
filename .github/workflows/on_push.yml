@@ -191,15 +191,19 @@ jobs:
       -
         name: Prepare release assets
         run: ./scripts/prepare-assets.sh
+      - 
+        uses: nowsprinting/check-version-format-action@v3
+        id: version
+        with:
+          prefix: 'v'
       -
         name: "Create release"
         uses: softprops/action-gh-release@master
         with:
           target_commitish: ${{ github.sha }}
-          prerelease: false
+          prerelease: $ {{ steps.version.outputs.is_stable == 'true' }}
           draft: false
           generate_release_notes: true
-          make_latest: true
           files: ./release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
