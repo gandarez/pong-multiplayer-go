@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -11,6 +12,7 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/internal/ai"
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
 	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
+	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
@@ -37,6 +39,9 @@ type Game struct {
 	// scores
 	score1 *score
 	score2 *score
+
+	// ready is used when the game is ready to play to create some objects only once
+	ready sync.Once
 }
 
 // New creates a new game.
@@ -46,51 +51,10 @@ func New(assets *assets.Assets) (*Game, error) {
 		return nil, fmt.Errorf("failed to create main menu: %w", err)
 	}
 
-	scoreTextFaceSource, err := assets.NewTextFaceSource("score")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create score text face source: %w", err)
-	}
-
-	pongScoreFontFace := &text.GoTextFace{
-		Source: scoreTextFaceSource,
-		Size:   44,
-	}
-
-	p1 := engineplayer.New("Player 1", geometry.Left, ScreenWidth, ScreenHeight, 10)
-	p2 := engineplayer.New("Player 2", geometry.Right, ScreenWidth, ScreenHeight, 10)
-
-	score1AdjustmentPositionX, _ := text.Measure("0", pongScoreFontFace, 1)
-
-	var nextPlayer geometry.Side
-	if rand.Intn(2) == 0 { // nolint: gosec
-		nextPlayer = geometry.Left
-	} else {
-		nextPlayer = geometry.Right
-	}
-
 	return &Game{
 		assets: assets,
-		ball: &ball{
-			engineball.New(nextPlayer, ScreenWidth, ScreenHeight),
-		},
-		menu:     menu,
-		nextSide: nextPlayer,
-		player1:  &player{p1},
-		player2:  &player{p2},
-		score1: &score{
-			textFace: pongScoreFontFace,
-			position: geometry.Vector{
-				X: ScreenWidth/2 - 50 - score1AdjustmentPositionX,
-				Y: 30,
-			},
-		},
-		score2: &score{
-			textFace: pongScoreFontFace,
-			position: geometry.Vector{
-				X: ScreenWidth/2 + 70,
-				Y: 30,
-			},
-		},
+		menu:   menu,
+		ready:  sync.Once{},
 	}, nil
 }
 
@@ -99,6 +63,8 @@ func (g *Game) Update() error {
 	// if the game is not ready to play, udpate the menu
 	if !g.menu.IsReadyToPlay() {
 		g.menu.Update()
+
+		return nil
 	}
 
 	// update the ball
@@ -153,6 +119,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 
+	// initialize the game. It's thread-safe.
+	if err := g.start(g.menu.Level()); err != nil {
+		// panic is not the best way to handle this error, but Draw does not return an error
+		panic(fmt.Errorf("failed to start the game: %w", err))
+	}
+
 	// draw the field
 	g.drawField(screen)
 
@@ -169,6 +141,59 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 // Layout returns the screen width and height.
-func (Game) Layout(_, _ int) (int, int) {
+func (*Game) Layout(_, _ int) (int, int) {
 	return ScreenWidth, ScreenHeight
+}
+
+func (g *Game) start(lvl level.Level) (errstart error) {
+	g.ready.Do(func() {
+		scoreTextFaceSource, err := g.assets.NewTextFaceSource("score")
+		if err != nil {
+			errstart = fmt.Errorf("failed to create score text face source: %w", err)
+			return
+		}
+
+		p1 := engineplayer.New("Player 1", geometry.Left, ScreenWidth, ScreenHeight, 10)
+		p2 := engineplayer.New("Player 2", geometry.Right, ScreenWidth, ScreenHeight, 10)
+
+		g.player1 = &player{p1}
+		g.player2 = &player{p2}
+
+		pongScoreFontFace := &text.GoTextFace{
+			Source: scoreTextFaceSource,
+			Size:   44,
+		}
+
+		score1AdjustmentPositionX, _ := text.Measure("0", pongScoreFontFace, 1)
+
+		g.score1 = &score{
+			textFace: pongScoreFontFace,
+			position: geometry.Vector{
+				X: ScreenWidth/2 - 50 - score1AdjustmentPositionX,
+				Y: 30,
+			},
+		}
+		g.score2 = &score{
+			textFace: pongScoreFontFace,
+			position: geometry.Vector{
+				X: ScreenWidth/2 + 70,
+				Y: 30,
+			},
+		}
+
+		var nextPlayer geometry.Side
+		if rand.Intn(2) == 0 { // nolint: gosec
+			nextPlayer = geometry.Left
+		} else {
+			nextPlayer = geometry.Right
+		}
+
+		g.nextSide = nextPlayer
+
+		g.ball = &ball{
+			engineball.New(nextPlayer, ScreenWidth, ScreenHeight, lvl),
+		}
+	})
+
+	return
 }

@@ -4,12 +4,13 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 const (
 	initialSpeed = 2
-	maxSpeed     = 6
+	maxSpeed     = 8
 	width        = 10
 )
 
@@ -17,6 +18,7 @@ const (
 type Ball struct {
 	angle        float64
 	bounces      int
+	level        level.Level
 	position     geometry.Vector
 	screenHeight float64
 	screenWidth  float64
@@ -27,9 +29,10 @@ type Ball struct {
 // New creates a new ball.
 // nextSide is the side that the ball will go when the game starts.
 // screenWidth and screenHeight are the dimensions of the screen.
-func New(nextSide geometry.Side, screenWidth, screenHeight float64) *Ball {
+func New(nextSide geometry.Side, screenWidth, screenHeight float64, lvl level.Level) *Ball {
 	return &Ball{
 		angle: calcInitialAngle(nextSide),
+		level: lvl,
 		position: geometry.Vector{
 			X: (screenWidth - width) / 2,
 			Y: (screenHeight - width) / 2,
@@ -43,7 +46,7 @@ func New(nextSide geometry.Side, screenWidth, screenHeight float64) *Ball {
 
 // Reset resets the ball to the center of the screen and changes the side that the ball will go.
 func (b *Ball) Reset(nextSide geometry.Side) *Ball {
-	return New(nextSide, b.screenWidth, b.screenHeight)
+	return New(nextSide, b.screenWidth, b.screenHeight, b.level)
 }
 
 // Bounds returns the bounds of the ball.
@@ -92,7 +95,14 @@ func (b *Ball) increaseSpeed() {
 		return
 	}
 
-	b.speed += 0.5
+	switch b.level {
+	case level.Easy:
+		b.speed += 0.5
+	case level.Medium:
+		b.speed += 1
+	case level.Hard:
+		b.speed += 2
+	}
 
 	if b.speed > maxSpeed {
 		b.speed = maxSpeed

@@ -3,6 +3,7 @@ package menu
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -11,18 +12,27 @@ import (
 
 	"github.com/gandarez/pong-multiplayer-go/assets"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
+	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
 const (
-	titleStr                   = "PONGO"
+	// menu strings
+	backStr                    = "Back"
 	localModeStr               = "Local Mode"
 	multiplayerStr             = "Multiplayer"
 	multiplayerFindOpponentStr = "Finding opponent.."
 	onePlayerStr               = "One Player"
+	titleStr                   = "PONGO"
 	twoPlayersStr              = "Two Players"
-	backStr                    = "Back"
+
+	// levels
+	levelEasyStr   = "Easy"
+	levelMediumStr = "Medium"
+	levelHardStr   = "Hard"
 )
+
+var defaultColor = color.RGBA{200, 200, 200, 255}
 
 // state is the state of the menu.
 type state int
@@ -31,6 +41,7 @@ const (
 	mainMenu state = iota
 	localMode
 	multiplayerMode
+	levelSelection
 )
 
 // GameMode is the game mode.
@@ -51,6 +62,7 @@ const (
 type Menu struct {
 	mainTitleTextFace *text.GoTextFace
 	gameMode          GameMode
+	level             level.Level
 	state             state
 	selectedOption    int8
 	screenWidth       float64
@@ -77,151 +89,6 @@ func New(assets *assets.Assets, screenWidth int) (*Menu, error) {
 	}, nil
 }
 
-// Draw draws the menu on the screen.
-func (m *Menu) Draw(screen *ebiten.Image) {
-	mainTitleAdjustmentPositionX, _ := text.Measure(titleStr, m.mainTitleTextFace, 1)
-
-	mainTitle := ui.Text{
-		Value:    titleStr,
-		FontFace: m.mainTitleTextFace,
-		Position: geometry.Vector{
-			X: (m.screenWidth - mainTitleAdjustmentPositionX) / 2,
-			Y: 80,
-		},
-		Color: color.RGBA{200, 200, 200, 255},
-	}
-
-	mainTitle.Draw(screen)
-
-	submenuTitleTextFace := *m.mainTitleTextFace
-	submenuTitleTextFace.Size = 20
-
-	switch m.state {
-	case mainMenu:
-		submenuAdjustmentPositionX, _ := text.Measure(localModeStr, &submenuTitleTextFace, 1)
-
-		localModeTitleTextFace := ui.Text{
-			Value:    localModeStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - submenuAdjustmentPositionX) / 2,
-				Y: 300,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		localModeTitleTextFace.Draw(screen)
-
-		submenuAdjustmentPositionX, _ = text.Measure(multiplayerStr, &submenuTitleTextFace, 1)
-
-		multiplayerTitleTextFace := ui.Text{
-			Value:    multiplayerStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - submenuAdjustmentPositionX) / 2,
-				Y: 350,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		multiplayerTitleTextFace.Draw(screen)
-
-		// draw selected option
-		switch m.selectedOption {
-		case 0:
-			vector.DrawFilledRect(
-				screen,
-				float32(m.screenWidth-submenuAdjustmentPositionX)/2-30, 305,
-				15, 15, color.RGBA{200, 200, 200, 255}, true,
-			)
-		case 1:
-			vector.DrawFilledRect(
-				screen,
-				float32(m.screenWidth-submenuAdjustmentPositionX)/2-30, 355,
-				15, 15, color.RGBA{200, 200, 200, 255}, true,
-			)
-		}
-	case localMode:
-		singlePlayerAdjustmentPositionX, _ := text.Measure(onePlayerStr, &submenuTitleTextFace, 1)
-
-		localModeTitleTextFace := ui.Text{
-			Value:    onePlayerStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - singlePlayerAdjustmentPositionX) / 2,
-				Y: 300,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		localModeTitleTextFace.Draw(screen)
-
-		twoPlayersAdjustmentPositionX, _ := text.Measure(twoPlayersStr, &submenuTitleTextFace, 1)
-
-		multiplayerTitleTextFace := ui.Text{
-			Value:    twoPlayersStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - twoPlayersAdjustmentPositionX) / 2,
-				Y: 350,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		multiplayerTitleTextFace.Draw(screen)
-
-		backMenuAdjustmentPositionX, _ := text.Measure(backStr, &submenuTitleTextFace, 1)
-
-		backMenuTitleTextFace := ui.Text{
-			Value:    backStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - backMenuAdjustmentPositionX) / 2,
-				Y: 400,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		backMenuTitleTextFace.Draw(screen)
-
-		// draw selected option
-		switch m.selectedOption {
-		case 0:
-			vector.DrawFilledRect(
-				screen,
-				float32(m.screenWidth-singlePlayerAdjustmentPositionX)/2-30, 305,
-				15, 15, color.RGBA{200, 200, 200, 255}, true,
-			)
-		case 1:
-			vector.DrawFilledRect(
-				screen,
-				float32(m.screenWidth-singlePlayerAdjustmentPositionX)/2-30, 355,
-				15, 15, color.RGBA{200, 200, 200, 255}, true,
-			)
-		case 2:
-			vector.DrawFilledRect(
-				screen,
-				float32(m.screenWidth-singlePlayerAdjustmentPositionX)/2-30, 405,
-				15, 15, color.RGBA{200, 200, 200, 255}, true,
-			)
-		}
-	case multiplayerMode:
-		submenuAdjustmentPositionX, _ := text.Measure(multiplayerFindOpponentStr, &submenuTitleTextFace, 1)
-
-		finding := ui.Text{
-			Value:    multiplayerFindOpponentStr,
-			FontFace: &submenuTitleTextFace,
-			Position: geometry.Vector{
-				X: (m.screenWidth - submenuAdjustmentPositionX) / 2,
-				Y: 300,
-			},
-			Color: color.RGBA{200, 200, 200, 255},
-		}
-
-		finding.Draw(screen)
-	}
-}
-
 // Update updates the menu state.
 func (m *Menu) Update() {
 	// key down
@@ -238,6 +105,15 @@ func (m *Menu) Update() {
 			case 1:
 				m.selectedOption = 2
 			}
+		case levelSelection:
+			switch m.selectedOption {
+			case 0:
+				m.selectedOption = 1
+			case 1:
+				m.selectedOption = 2
+			case 2:
+				m.selectedOption = 3
+			}
 		}
 
 		return
@@ -252,6 +128,15 @@ func (m *Menu) Update() {
 			}
 		case localMode:
 			switch m.selectedOption {
+			case 2:
+				m.selectedOption = 1
+			case 1:
+				m.selectedOption = 0
+			}
+		case levelSelection:
+			switch m.selectedOption {
+			case 3:
+				m.selectedOption = 2
 			case 2:
 				m.selectedOption = 1
 			case 1:
@@ -279,13 +164,35 @@ func (m *Menu) Update() {
 			case 0:
 				// single player
 				m.gameMode = OnePlayer
-				m.readyToPlay = true
+				m.state = levelSelection
+				m.selectedOption = 0
 			case 1:
 				// two players
 				m.gameMode = TwoPlayers
-				m.readyToPlay = true
+				m.state = levelSelection
+				m.selectedOption = 0
 			case 2:
 				m.state = mainMenu
+				m.gameMode = Undefined
+				m.readyToPlay = false
+				m.selectedOption = 0
+			}
+		case levelSelection:
+			switch m.selectedOption {
+			case 0:
+				// easy
+				m.level = level.Easy
+				m.readyToPlay = true
+			case 1:
+				// medium
+				m.level = level.Medium
+				m.readyToPlay = true
+			case 2:
+				// hard
+				m.level = level.Hard
+				m.readyToPlay = false
+			case 3:
+				m.state = localMode
 				m.gameMode = Undefined
 				m.readyToPlay = false
 				m.selectedOption = 0
@@ -296,12 +203,99 @@ func (m *Menu) Update() {
 	}
 }
 
+// Draw draws the menu on the screen.
+func (m *Menu) Draw(screen *ebiten.Image) {
+	m.drawMainTitle(screen)
+
+	submenuTitleTextFace := *m.mainTitleTextFace
+	submenuTitleTextFace.Size = 20
+
+	switch m.state {
+	case mainMenu:
+		m.drawText(screen, &submenuTitleTextFace, true, localModeStr, multiplayerStr)
+	case localMode:
+		m.drawText(screen, &submenuTitleTextFace, true, onePlayerStr, twoPlayersStr, backStr)
+	case multiplayerMode:
+		m.drawText(screen, &submenuTitleTextFace, false, multiplayerFindOpponentStr)
+	case levelSelection:
+		m.drawText(screen, &submenuTitleTextFace, true, levelEasyStr, levelMediumStr, levelHardStr, backStr)
+	}
+}
+
+func (m *Menu) drawMainTitle(screen *ebiten.Image) {
+	positionX, _ := text.Measure(titleStr, m.mainTitleTextFace, 1)
+
+	uiText := ui.Text{
+		Value:    titleStr,
+		FontFace: m.mainTitleTextFace,
+		Position: geometry.Vector{
+			X: (m.screenWidth - positionX) / 2,
+			Y: 80,
+		},
+		Color: defaultColor,
+	}
+
+	uiText.Draw(screen)
+}
+
+func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet bool, values ...string) {
+	var maxPositionX float64
+	y := 250.0
+
+	for _, val := range values {
+		positionX, _ := text.Measure(val, font, 1)
+
+		uiText := ui.Text{
+			Value:    val,
+			FontFace: font,
+			Position: geometry.Vector{
+				X: (m.screenWidth - positionX) / 2,
+				Y: y,
+			},
+			Color: defaultColor,
+		}
+
+		uiText.Draw(screen)
+
+		y += 50
+
+		maxPositionX = math.Max(maxPositionX, positionX)
+	}
+
+	if !drawBullet {
+		return
+	}
+
+	// draw selected option
+	switch m.selectedOption {
+	case 0:
+		y = 255
+	case 1:
+		y = 305
+	case 2:
+		y = 355
+	case 3:
+		y = 405
+	}
+
+	vector.DrawFilledRect(
+		screen,
+		float32(m.screenWidth-maxPositionX)/2-30, float32(y),
+		15, 15, defaultColor, true,
+	)
+}
+
 // IsReadyToPlay returns true if the game is ready to play.
 func (m *Menu) IsReadyToPlay() bool {
 	return m.readyToPlay
 }
 
-// GameMode returns the game mode.
+// GameMode returns the selected game mode.
 func (m *Menu) GameMode() GameMode {
 	return m.gameMode
+}
+
+// Level returns the selected level.
+func (m *Menu) Level() level.Level {
+	return m.level
 }
