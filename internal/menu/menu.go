@@ -187,7 +187,7 @@ func (m *Menu) Update() {
 			case 2:
 				// hard
 				m.level = level.Hard
-				m.readyToPlay = false
+				m.readyToPlay = true
 			case 3:
 				m.state = localMode
 				m.gameMode = Undefined
