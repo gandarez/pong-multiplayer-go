@@ -25,6 +25,7 @@ func Load() (*Assets, error) {
 	// Load fonts
 	fonts := map[string]string{
 		"score": "fonts/score.ttf",
+		"stat":  "fonts/stat.ttf",
 		"ui":    "fonts/ui.ttf",
 	}
 
