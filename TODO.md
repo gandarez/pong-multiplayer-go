@@ -6,5 +6,4 @@
 * Make title constant unique across the game.
 * For two players mode, add a pre-game screen to show the binding keys for each player.
 * For multiplayer mode, add a pre-game screen where players can enter their names before start finding a match.
-* Make the game end when a player reaches 10 points.
 * There's a bug where sometimes the score starts from 1 instead of 0.

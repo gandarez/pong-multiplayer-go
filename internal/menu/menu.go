@@ -2,7 +2,6 @@ package menu
 
 import (
 	"fmt"
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -31,8 +30,6 @@ const (
 	levelMediumStr = "Medium"
 	levelHardStr   = "Hard"
 )
-
-var defaultColor = color.RGBA{200, 200, 200, 255}
 
 // state is the state of the menu.
 type state int
@@ -232,7 +229,7 @@ func (m *Menu) drawMainTitle(screen *ebiten.Image) {
 			X: (m.screenWidth - positionX) / 2,
 			Y: 80,
 		},
-		Color: defaultColor,
+		Color: ui.DefaultColor,
 	}
 
 	uiText.Draw(screen)
@@ -252,7 +249,7 @@ func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet 
 				X: (m.screenWidth - positionX) / 2,
 				Y: y,
 			},
-			Color: defaultColor,
+			Color: ui.DefaultColor,
 		}
 
 		uiText.Draw(screen)
@@ -281,7 +278,7 @@ func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet 
 	vector.DrawFilledRect(
 		screen,
 		float32(m.screenWidth-maxPositionX)/2-30, float32(y),
-		15, 15, defaultColor, true,
+		15, 15, ui.DefaultColor, true,
 	)
 }
 

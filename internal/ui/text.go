@@ -9,6 +9,8 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
+var DefaultColor = color.RGBA{200, 200, 200, 255}
+
 // Text represents a text to be drawn on the screen.
 type Text struct {
 	Value    string

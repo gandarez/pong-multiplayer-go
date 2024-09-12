@@ -46,6 +46,10 @@ func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorder
 	}
 }
 
+func (p *Player) Reset() {
+	p.position.Y = (p.screenHeight - p.bouncerHeight) / 2
+}
+
 // Update updates the player position based on the keys pressed.
 func (p *Player) Update(up, down ebiten.Key) {
 	switch {

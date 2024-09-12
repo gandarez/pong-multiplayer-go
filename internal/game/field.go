@@ -9,7 +9,7 @@ import (
 // fieldBorderWidth is the width of top and bottom field borders.
 const fieldBorderWidth = 10
 
-func (Game) drawField(screen *ebiten.Image) {
+func (*Game) drawField(screen *ebiten.Image) {
 	// draw field limits
 	for x := 0; x <= ScreenWidth; x++ {
 		for y := 0; y <= fieldBorderWidth; y++ {
