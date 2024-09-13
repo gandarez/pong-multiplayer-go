@@ -46,6 +46,7 @@ func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorder
 	}
 }
 
+// Reset resets the player to its initial position.
 func (p *Player) Reset() {
 	p.position.Y = (p.screenHeight - p.bouncerHeight) / 2
 }

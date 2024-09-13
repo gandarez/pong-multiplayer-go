@@ -9,6 +9,8 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
+// nolint:revive,gochecknoglobals
+// DefaultColor is the default color of the text.
 var DefaultColor = color.RGBA{200, 200, 200, 255}
 
 // Text represents a text to be drawn on the screen.

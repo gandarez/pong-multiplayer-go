@@ -13,10 +13,12 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
+// Metric represents the game metric.
 type Metric struct {
 	textFace *text.GoTextFace
 }
 
+// New creates a new metric.
 func New(assets *assets.Assets) (*Metric, error) {
 	textFaceSource, err := assets.NewTextFaceSource("stat")
 	if err != nil {
@@ -33,6 +35,10 @@ func New(assets *assets.Assets) (*Metric, error) {
 	}, nil
 }
 
+// Draw draws the metric on the screen.
+// bounces is the number of bounces of the ball.
+// angle is the angle of the ball.
+// lvl is the current level.
 func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl level.Level) {
 	// draw current FPS, bounces, current level
 	fpsText := fmt.Sprintf(

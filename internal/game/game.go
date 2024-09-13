@@ -110,7 +110,9 @@ func (g *Game) Update() error {
 		// if the game is ready to play, change the state to playing
 		g.state = playing
 	case playing:
-		g.update()
+		if err := g.update(); err != nil {
+			return fmt.Errorf("failed to update the game: %w", err)
+		}
 	case ended:
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			g.reset()
@@ -257,7 +259,7 @@ func (g *Game) start(lvl level.Level) (errstart error) {
 		}
 
 		var nextPlayer geometry.Side
-		if rand.Intn(2) == 0 { // nolint: gosec
+		if rand.Intn(2) == 0 { // nolint:gosec
 			nextPlayer = geometry.Left
 		} else {
 			nextPlayer = geometry.Right
@@ -270,5 +272,5 @@ func (g *Game) start(lvl level.Level) (errstart error) {
 		}
 	})
 
-	return
+	return //nolint:revive
 }

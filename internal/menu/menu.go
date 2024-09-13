@@ -87,6 +87,7 @@ func New(assets *assets.Assets, screenWidth int) (*Menu, error) {
 }
 
 // Update updates the menu state.
+// nolint:gocyclo
 func (m *Menu) Update() {
 	// key down
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
@@ -195,8 +196,6 @@ func (m *Menu) Update() {
 				m.selectedOption = 0
 			}
 		}
-
-		return
 	}
 }
 
@@ -237,6 +236,7 @@ func (m *Menu) drawMainTitle(screen *ebiten.Image) {
 
 func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet bool, values ...string) {
 	var maxPositionX float64
+
 	y := 250.0
 
 	for _, val := range values {

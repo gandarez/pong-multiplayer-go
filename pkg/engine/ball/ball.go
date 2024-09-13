@@ -87,7 +87,7 @@ func (b *Ball) bounce(p1Bounds, p2Bounds geometry.Rect) {
 }
 
 func (b *Ball) randomBounce() {
-	b.angle = 180 - b.angle - width + 20*rand.Float64() // nolint: gosec
+	b.angle = 180 - b.angle - width + 20*rand.Float64() // nolint:gosec
 }
 
 func (b *Ball) increaseSpeed() {
@@ -99,7 +99,7 @@ func (b *Ball) increaseSpeed() {
 	case level.Easy:
 		b.speed += 0.5
 	case level.Medium:
-		b.speed += 1
+		b.speed++
 	case level.Hard:
 		b.speed += 2
 	}
@@ -148,8 +148,8 @@ func (b *Ball) Position() geometry.Vector {
 
 func calcInitialAngle(nextSide geometry.Side) float64 {
 	if nextSide == geometry.Left {
-		return -45 + float64(rand.Intn(91)) // nolint: gosec
+		return -45 + float64(rand.Intn(91)) // nolint:gosec
 	}
 
-	return 135 + float64(rand.Intn(91)) // nolint: gosec
+	return 135 + float64(rand.Intn(91)) // nolint:gosec
 }
