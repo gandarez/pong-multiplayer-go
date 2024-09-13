@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	// menu strings
+	// menu strings.
 	backStr                    = "Back"
 	localModeStr               = "Local Mode"
 	multiplayerStr             = "Multiplayer"
@@ -25,7 +25,7 @@ const (
 	titleStr                   = "PONGO"
 	twoPlayersStr              = "Two Players"
 
-	// levels
+	// levels.
 	levelEasyStr   = "Easy"
 	levelMediumStr = "Medium"
 	levelHardStr   = "Hard"

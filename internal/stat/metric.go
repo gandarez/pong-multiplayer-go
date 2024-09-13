@@ -33,12 +33,13 @@ func New(assets *assets.Assets) (*Metric, error) {
 	}, nil
 }
 
-func (m *Metric) Draw(screen *ebiten.Image, bounces int, lvl level.Level) {
+func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl level.Level) {
 	// draw current FPS, bounces, current level
 	fpsText := fmt.Sprintf(
-		"FPS: %.f | Bounces: %d | Level: %s",
+		"FPS: %.f | Ball (bounces: %d, angle: %.f ) | Level: %s",
 		ebiten.ActualFPS(),
 		bounces,
+		angle,
 		lvl.String(),
 	)
 

@@ -52,10 +52,10 @@ func (r Rect) Intersects(other Rect) bool {
 
 // String returns a string representation of the rectangle.
 func (r Rect) String() string {
-	return fmt.Sprintf("(x:%.f-y:%.f) (w:%.f-h:%.f)", r.X, r.Y, r.Width, r.Height)
+	return fmt.Sprintf("x:%.f-y:%.f - w:%.f-h:%.f", r.X, r.Y, r.Width, r.Height)
 }
 
 // String returns a string representation of the vector.
 func (v Vector) String() string {
-	return fmt.Sprintf("(%.f:%.f)", v.X, v.Y)
+	return fmt.Sprintf("%.f:%.f", v.X, v.Y)
 }

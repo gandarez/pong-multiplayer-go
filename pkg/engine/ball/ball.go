@@ -126,6 +126,11 @@ func (b *Ball) CheckGoal() (bool, geometry.Side) {
 	return false, geometry.Undefined
 }
 
+// Angle returns the angle of the ball.
+func (b *Ball) Angle() float64 {
+	return b.angle
+}
+
 // Bounces returns the number of bounces that the ball has.
 func (b *Ball) Bounces() int {
 	return b.bounces

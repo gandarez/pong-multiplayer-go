@@ -196,7 +196,7 @@ func (g *Game) draw(screen *ebiten.Image) {
 	g.drawField(screen)
 
 	// draw the metric
-	g.metric.Draw(screen, g.ball.Bounces(), g.menu.Level())
+	g.metric.Draw(screen, g.ball.Bounces(), g.ball.Angle(), g.menu.Level())
 
 	// draw the ball
 	g.ball.draw(screen)
