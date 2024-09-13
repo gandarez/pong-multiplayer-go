@@ -12,6 +12,7 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/assets"
 	"github.com/gandarez/pong-multiplayer-go/internal/ai"
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
+	metric "github.com/gandarez/pong-multiplayer-go/internal/stat"
 	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
@@ -43,6 +44,7 @@ const (
 type Game struct {
 	assets *assets.Assets
 	menu   *menu.Menu
+	metric *metric.Metric
 	state  state
 
 	ball     *ball
@@ -67,9 +69,16 @@ func New(assets *assets.Assets) (*Game, error) {
 		return nil, fmt.Errorf("failed to create main menu: %w", err)
 	}
 
+	// create the metric
+	metric, err := metric.New(assets)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create metric: %w", err)
+	}
+
 	return &Game{
 		assets: assets,
 		menu:   menu,
+		metric: metric,
 		ready:  sync.Once{},
 		state:  notReady,
 	}, nil
@@ -185,6 +194,9 @@ func (g *Game) draw(screen *ebiten.Image) {
 
 	// draw the field
 	g.drawField(screen)
+
+	// draw the metric
+	g.metric.Draw(screen, g.ball.Bounces(), g.menu.Level())
 
 	// draw the ball
 	g.ball.draw(screen)

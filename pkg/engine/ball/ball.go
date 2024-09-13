@@ -126,6 +126,11 @@ func (b *Ball) CheckGoal() (bool, geometry.Side) {
 	return false, geometry.Undefined
 }
 
+// Bounces returns the number of bounces that the ball has.
+func (b *Ball) Bounces() int {
+	return b.bounces
+}
+
 // Width returns the width of the ball.
 func (b *Ball) Width() float64 {
 	return b.width
