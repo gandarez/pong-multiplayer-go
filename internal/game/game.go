@@ -230,8 +230,8 @@ func (g *Game) start(lvl level.Level) (errstart error) {
 			return
 		}
 
-		p1 := engineplayer.New("Player 1", geometry.Left, ScreenWidth, ScreenHeight, 10)
-		p2 := engineplayer.New("Player 2", geometry.Right, ScreenWidth, ScreenHeight, 10)
+		p1 := engineplayer.New("Player 1", geometry.Left, ScreenWidth, ScreenHeight, fieldBorderWidth)
+		p2 := engineplayer.New("Player 2", geometry.Right, ScreenWidth, ScreenHeight, fieldBorderWidth)
 
 		g.player1 = &player{p1}
 		g.player2 = &player{p2}
