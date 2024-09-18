@@ -140,10 +140,19 @@ func (g *Game) update() error {
 		// AI player
 		g.player1.SetPosition(y)
 		// human player
-		g.player2.Update(ebiten.KeyUp, ebiten.KeyDown)
+		g.player2.Update(engineplayer.Input{
+			Up:   ebiten.IsKeyPressed(ebiten.KeyUp),
+			Down: ebiten.IsKeyPressed(ebiten.KeyDown),
+		})
 	case menu.TwoPlayers:
-		g.player1.Update(ebiten.KeyQ, ebiten.KeyA)
-		g.player2.Update(ebiten.KeyUp, ebiten.KeyDown)
+		g.player1.Update(engineplayer.Input{
+			Up:   ebiten.IsKeyPressed(ebiten.KeyQ),
+			Down: ebiten.IsKeyPressed(ebiten.KeyA),
+		})
+		g.player2.Update(engineplayer.Input{
+			Up:   ebiten.IsKeyPressed(ebiten.KeyUp),
+			Down: ebiten.IsKeyPressed(ebiten.KeyDown),
+		})
 	}
 
 	// check if the ball is out of the field and update the scores

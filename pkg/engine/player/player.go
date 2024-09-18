@@ -1,8 +1,6 @@
 package player
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
@@ -13,6 +11,12 @@ const (
 )
 
 type (
+	// Input represents the input of the player.
+	Input struct {
+		Up   bool
+		Down bool
+	}
+
 	// Player is the player of the game.
 	Player struct {
 		name             string
@@ -52,11 +56,11 @@ func (p *Player) Reset() {
 }
 
 // Update updates the player position based on the keys pressed.
-func (p *Player) Update(up, down ebiten.Key) {
+func (p *Player) Update(input Input) {
 	switch {
-	case ebiten.IsKeyPressed(up):
+	case input.Up:
 		p.position.Y -= movementSpeed
-	case ebiten.IsKeyPressed(down):
+	case input.Down:
 		p.position.Y += movementSpeed
 	}
 

@@ -1,8 +1,6 @@
 package geometry
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type (
 	// Rect represents a rectangle.
