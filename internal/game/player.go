@@ -9,7 +9,7 @@ import (
 )
 
 type player struct {
-	*engineplayer.Player
+	engineplayer.Player
 }
 
 func (p *player) draw(screen *ebiten.Image) {

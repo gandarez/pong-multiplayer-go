@@ -7,31 +7,31 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/gandarez/pong-multiplayer-go/assets"
+	"github.com/gandarez/pong-multiplayer-go/internal/font"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
+// nolint: gochecknoglobals
+var defaultColor = color.RGBA{0, 0, 0, 255}
+
 // Metric represents the game metric.
 type Metric struct {
-	textFace *text.GoTextFace
+	screenWidth float64
+	textFace    *text.GoTextFace
 }
 
 // New creates a new metric.
-func New(assets *assets.Assets) (*Metric, error) {
-	textFaceSource, err := assets.NewTextFaceSource("stat")
+func New(font *font.Font, screenWidth float64) (*Metric, error) {
+	textFace, err := font.Face("stat", 9)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create text face source: %w", err)
-	}
-
-	textFace := &text.GoTextFace{
-		Source: textFaceSource,
-		Size:   9,
+		return nil, fmt.Errorf("failed to create text face: %w", err)
 	}
 
 	return &Metric{
-		textFace: textFace,
+		screenWidth: screenWidth,
+		textFace:    textFace,
 	}, nil
 }
 
@@ -40,7 +40,7 @@ func New(assets *assets.Assets) (*Metric, error) {
 // angle is the angle of the ball.
 // lvl is the current level.
 func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl level.Level) {
-	// draw current FPS, bounces, current level
+	// draw current FPS, bounces, current level, or ping if present
 	fpsText := fmt.Sprintf(
 		"FPS: %.f | Ball (bounces: %d, angle: %.f ) | Level: %s",
 		ebiten.ActualFPS(),
@@ -56,7 +56,29 @@ func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl leve
 			X: 5,
 			Y: 0,
 		},
-		Color: color.RGBA{0, 0, 0, 255},
+		Color: defaultColor,
+	}
+
+	uiText.Draw(screen)
+}
+
+// DrawNetworkInfo draws the network information on the screen.
+func (m *Metric) DrawNetworkInfo(screen *ebiten.Image, pingCurrentPlayer, pingOpponent int64) {
+	pingText := fmt.Sprintf(
+		"me: %4dms | opponent: %4dms",
+		pingCurrentPlayer, pingOpponent,
+	)
+
+	width, _ := text.Measure(pingText, m.textFace, 1)
+
+	uiText := ui.Text{
+		Value:    pingText,
+		FontFace: m.textFace,
+		Position: geometry.Vector{
+			X: float64(m.screenWidth) - width - 5,
+			Y: 0,
+		},
+		Color: defaultColor,
 	}
 
 	uiText.Draw(screen)

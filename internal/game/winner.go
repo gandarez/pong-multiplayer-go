@@ -18,26 +18,21 @@ func (g *Game) drawWinner(screen *ebiten.Image) {
 		winner = g.player2.Name()
 	}
 
-	winnerFaceSource, err := g.assets.NewTextFaceSource("ui")
+	textFace, err := g.font.Face("ui", 40)
 	if err != nil {
 		// panic is not the best way to handle this error, but Draw() does not return an error
-		panic(fmt.Errorf("failed to create winner text face source: %w", err))
-	}
-
-	font := &text.GoTextFace{
-		Source: winnerFaceSource,
-		Size:   40,
+		panic(fmt.Errorf("failed to create winner text face: %w", err))
 	}
 
 	winnerText := fmt.Sprintf("%s won", winner)
 
-	positionX, _ := text.Measure(winnerText, font, 1)
+	width, _ := text.Measure(winnerText, textFace, 1)
 
 	uiText := ui.Text{
-		Value:    fmt.Sprintf("%s won", winner),
-		FontFace: font,
+		Value:    winnerText,
+		FontFace: textFace,
 		Position: geometry.Vector{
-			X: (ScreenWidth - positionX) / 2,
+			X: (ScreenWidth - width) / 2,
 			Y: 200,
 		},
 		Color: ui.DefaultColor,
@@ -45,15 +40,15 @@ func (g *Game) drawWinner(screen *ebiten.Image) {
 
 	uiText.Draw(screen)
 
-	font.Size = 30
+	textFace.Size = 30
 
-	positionX, _ = text.Measure("Press Enter to play again", font, 1)
+	width, _ = text.Measure("Press Enter to play again", textFace, 1)
 
 	uiText = ui.Text{
 		Value:    "Press Enter to play again",
-		FontFace: font,
+		FontFace: textFace,
 		Position: geometry.Vector{
-			X: (ScreenWidth - positionX) / 2,
+			X: (ScreenWidth - width) / 2,
 			Y: 300,
 		},
 		Color: ui.DefaultColor,

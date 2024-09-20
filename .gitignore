@@ -24,6 +24,7 @@ go.work.sum
 
 # Game binary
 *pongo
+pongo.wasm
 
 # Mac OS
 .DS_Store

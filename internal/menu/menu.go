@@ -1,15 +1,16 @@
 package menu
 
 import (
-	"fmt"
+	"log/slog"
 	"math"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
-	"github.com/gandarez/pong-multiplayer-go/assets"
+	"github.com/gandarez/pong-multiplayer-go/internal/font"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
@@ -17,18 +18,13 @@ import (
 
 const (
 	// menu strings.
-	backStr                    = "Back"
-	localModeStr               = "Local Mode"
-	multiplayerStr             = "Multiplayer"
-	multiplayerFindOpponentStr = "Finding opponent.."
-	onePlayerStr               = "One Player"
-	titleStr                   = "PONGO"
-	twoPlayersStr              = "Two Players"
-
-	// levels.
-	levelEasyStr   = "Easy"
-	levelMediumStr = "Medium"
-	levelHardStr   = "Hard"
+	titleStr        = "PONGO"
+	backStr         = "Back"
+	localModeStr    = "Local Mode"
+	onePlayerStr    = "One Player"
+	twoPlayersStr   = "Two Players"
+	multiplayerStr  = "Multiplayer"
+	instructionsStr = "Instructions"
 )
 
 // state is the state of the menu.
@@ -37,8 +33,8 @@ type state int
 const (
 	mainMenu state = iota
 	localMode
-	multiplayerMode
 	levelSelection
+	instructions
 )
 
 // GameMode is the game mode.
@@ -57,33 +53,23 @@ const (
 
 // Menu represents the game menu.
 type Menu struct {
-	mainTitleTextFace *text.GoTextFace
-	gameMode          GameMode
-	level             level.Level
-	state             state
-	selectedOption    int8
-	screenWidth       float64
-	readyToPlay       bool
+	font           *font.Font
+	gameMode       GameMode
+	level          level.Level
+	state          state
+	selectedOption int8
+	screenWidth    float64
+	readyToPlay    bool
 }
 
 // New creates a new game menu.
-func New(assets *assets.Assets, screenWidth int) (*Menu, error) {
-	mainTitleTextFaceSource, err := assets.NewTextFaceSource("ui")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create main title text face source: %w", err)
-	}
-
-	mainTitleTextFace := &text.GoTextFace{
-		Source: mainTitleTextFaceSource,
-		Size:   80,
-	}
-
+func New(font *font.Font, screenWidth float64) *Menu {
 	return &Menu{
-		mainTitleTextFace: mainTitleTextFace,
-		gameMode:          Undefined,
-		state:             mainMenu,
-		screenWidth:       float64(screenWidth),
-	}, nil
+		font:        font,
+		gameMode:    Undefined,
+		state:       mainMenu,
+		screenWidth: float64(screenWidth),
+	}
 }
 
 // Update updates the menu state.
@@ -93,24 +79,27 @@ func (m *Menu) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
 		switch m.state {
 		case mainMenu:
-			if m.selectedOption == 0 {
-				m.selectedOption++
+			switch m.selectedOption {
+			case 0: // local mode
+				m.selectedOption = 1
+			case 1: // multiplayer mode
+				m.selectedOption = 2 // instructions
 			}
 		case localMode:
 			switch m.selectedOption {
-			case 0:
+			case 0: // one player
 				m.selectedOption = 1
-			case 1:
-				m.selectedOption = 2
+			case 1: // two players
+				m.selectedOption = 2 // back
 			}
 		case levelSelection:
 			switch m.selectedOption {
-			case 0:
+			case 0: // easy
 				m.selectedOption = 1
-			case 1:
+			case 1: // medium
 				m.selectedOption = 2
-			case 2:
-				m.selectedOption = 3
+			case 2: // hard
+				m.selectedOption = 3 // back
 			}
 		}
 
@@ -121,24 +110,27 @@ func (m *Menu) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
 		switch m.state {
 		case mainMenu:
-			if m.selectedOption == 1 {
-				m.selectedOption--
+			switch m.selectedOption {
+			case 2: // instructions
+				m.selectedOption = 1
+			case 1: // multiplayer mode
+				m.selectedOption = 0 // local mode
 			}
 		case localMode:
 			switch m.selectedOption {
-			case 2:
+			case 2: // back
 				m.selectedOption = 1
-			case 1:
-				m.selectedOption = 0
+			case 1: // two players
+				m.selectedOption = 0 // one player
 			}
 		case levelSelection:
 			switch m.selectedOption {
-			case 3:
+			case 3: // back
 				m.selectedOption = 2
-			case 2:
+			case 2: // hard
 				m.selectedOption = 1
-			case 1:
-				m.selectedOption = 0
+			case 1: // medium
+				m.selectedOption = 0 // easy
 			}
 		}
 
@@ -151,10 +143,17 @@ func (m *Menu) Update() {
 		case mainMenu:
 			switch m.selectedOption {
 			case 0:
+				// local mode
 				m.state = localMode
 				m.selectedOption = 0
 			case 1:
-				m.state = multiplayerMode
+				// multiplayer mode
+				m.gameMode = Multiplayer
+				m.state = levelSelection
+				m.selectedOption = 0
+			case 2:
+				// instructions
+				m.state = instructions
 				m.selectedOption = 0
 			}
 		case localMode:
@@ -170,6 +169,7 @@ func (m *Menu) Update() {
 				m.state = levelSelection
 				m.selectedOption = 0
 			case 2:
+				// back
 				m.state = mainMenu
 				m.gameMode = Undefined
 				m.readyToPlay = false
@@ -190,63 +190,65 @@ func (m *Menu) Update() {
 				m.level = level.Hard
 				m.readyToPlay = true
 			case 3:
-				m.state = localMode
+				// back
+				m.state = mainMenu
 				m.gameMode = Undefined
 				m.readyToPlay = false
 				m.selectedOption = 0
 			}
 		}
 	}
+
+	// key esc
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		switch m.state {
+		case mainMenu:
+			// exit the game
+			m.gameMode = Undefined
+			m.readyToPlay = true // just to force exit menu
+		case localMode, levelSelection, instructions:
+			m.state = mainMenu
+			m.selectedOption = 0
+			m.gameMode = Undefined
+			m.readyToPlay = false
+		}
+	}
 }
 
 // Draw draws the menu on the screen.
 func (m *Menu) Draw(screen *ebiten.Image) {
-	m.drawMainTitle(screen)
-
-	submenuTitleTextFace := *m.mainTitleTextFace
-	submenuTitleTextFace.Size = 20
-
 	switch m.state {
 	case mainMenu:
-		m.drawText(screen, &submenuTitleTextFace, true, localModeStr, multiplayerStr)
+		m.drawOption(screen, localModeStr, multiplayerStr, instructionsStr)
 	case localMode:
-		m.drawText(screen, &submenuTitleTextFace, true, onePlayerStr, twoPlayersStr, backStr)
-	case multiplayerMode:
-		m.drawText(screen, &submenuTitleTextFace, false, multiplayerFindOpponentStr)
+		m.drawOption(screen, onePlayerStr, twoPlayersStr, backStr)
 	case levelSelection:
-		m.drawText(screen, &submenuTitleTextFace, true, levelEasyStr, levelMediumStr, levelHardStr, backStr)
+		m.drawOption(screen, level.Easy.String(), level.Medium.String(), level.Hard.String(), backStr)
+	case instructions:
+		m.drawInstructions(screen)
 	}
 }
 
-func (m *Menu) drawMainTitle(screen *ebiten.Image) {
-	positionX, _ := text.Measure(titleStr, m.mainTitleTextFace, 1)
+func (m *Menu) drawOption(screen *ebiten.Image, values ...string) {
+	textFace, err := m.font.Face("ui", 20)
+	if err != nil {
+		slog.Error("failed to create text face", slog.Any("error", err))
 
-	uiText := ui.Text{
-		Value:    titleStr,
-		FontFace: m.mainTitleTextFace,
-		Position: geometry.Vector{
-			X: (m.screenWidth - positionX) / 2,
-			Y: 80,
-		},
-		Color: ui.DefaultColor,
+		return
 	}
 
-	uiText.Draw(screen)
-}
-
-func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet bool, values ...string) {
-	var maxPositionX float64
+	var maxWidth float64
 
 	y := 250.0
 
 	for _, val := range values {
-		positionX, _ := text.Measure(val, font, 1)
+		width, _ := text.Measure(val, textFace, 1)
 
 		uiText := ui.Text{
 			Value:    val,
-			FontFace: font,
+			FontFace: textFace,
 			Position: geometry.Vector{
-				X: (m.screenWidth - positionX) / 2,
+				X: (m.screenWidth - width) / 2,
 				Y: y,
 			},
 			Color: ui.DefaultColor,
@@ -254,30 +256,67 @@ func (m *Menu) drawText(screen *ebiten.Image, font *text.GoTextFace, drawBullet 
 
 		uiText.Draw(screen)
 
+		maxWidth = math.Max(maxWidth, width)
+
 		y += 50
-
-		maxPositionX = math.Max(maxPositionX, positionX)
-	}
-
-	if !drawBullet {
-		return
 	}
 
 	// draw selected option
-	switch m.selectedOption {
-	case 0:
-		y = 255
-	case 1:
-		y = 305
-	case 2:
-		y = 355
-	case 3:
-		y = 405
-	}
+	y = 255. + 50*float64(m.selectedOption)
 
 	vector.DrawFilledRect(
 		screen,
-		float32(m.screenWidth-maxPositionX)/2-30, float32(y),
+		float32(m.screenWidth-maxWidth)/2-30, float32(y),
+		15, 15, ui.DefaultColor, true,
+	)
+}
+
+func (m *Menu) drawInstructions(screen *ebiten.Image) {
+	textFace, err := m.font.Face("ui", 12)
+	if err != nil {
+		slog.Error("failed to create text face", slog.Any("error", err))
+
+		return
+	}
+
+	var maxWidth float64
+
+	y := 200.0
+
+	val := strings.ReplaceAll(instructionsDetailedStr, "\r\n", "\n")
+	splitted := strings.Split(val, "\n")
+
+	var previousStr string
+
+	for _, str := range splitted {
+		width, height := text.Measure(str, textFace, 1)
+		if previousStr == "" && height == 0 {
+			height = 10
+		}
+
+		uiText := ui.Text{
+			Value:    str,
+			FontFace: textFace,
+			Position: geometry.Vector{
+				X: (m.screenWidth - width) / 2,
+				Y: y,
+			},
+			Color: ui.DefaultColor,
+		}
+
+		uiText.Draw(screen)
+
+		y += float64(height)
+
+		maxWidth = math.Max(maxWidth, width)
+	}
+
+	// draw selected option
+	y = 255. + 50*float64(m.selectedOption)
+
+	vector.DrawFilledRect(
+		screen,
+		float32(m.screenWidth-maxWidth)/2-30, float32(y),
 		15, 15, ui.DefaultColor, true,
 	)
 }

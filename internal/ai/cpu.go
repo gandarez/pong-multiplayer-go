@@ -1,8 +1,6 @@
 package ai
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
 const cpuSpeed = 2
 

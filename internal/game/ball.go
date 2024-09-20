@@ -9,7 +9,7 @@ import (
 )
 
 type ball struct {
-	*engineball.Ball
+	engineball.Ball
 }
 
 func (b ball) draw(screen *ebiten.Image) {
