@@ -27,10 +27,7 @@ jobs:
           cache: false
       - 
         name: Build
-        run: go build -o web/game.wasm ./cmd/game
-        env:
-          GOOS: js
-          GOARCH: wasm
+        run: make build-wasm
       - 
         name: Copy wasm_exec.js
         run: cp $(go env GOROOT)/misc/wasm/wasm_exec.js web/
