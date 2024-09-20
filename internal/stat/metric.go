@@ -15,11 +15,12 @@ import (
 
 // Metric represents the game metric.
 type Metric struct {
-	textFace *text.GoTextFace
+	screenWidth int
+	textFace    *text.GoTextFace
 }
 
 // New creates a new metric.
-func New(assets *assets.Assets) (*Metric, error) {
+func New(assets *assets.Assets, screenWidth int) (*Metric, error) {
 	textFaceSource, err := assets.NewTextFaceSource("stat")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create text face source: %w", err)
@@ -31,7 +32,8 @@ func New(assets *assets.Assets) (*Metric, error) {
 	}
 
 	return &Metric{
-		textFace: textFace,
+		screenWidth: screenWidth,
+		textFace:    textFace,
 	}, nil
 }
 
@@ -39,8 +41,8 @@ func New(assets *assets.Assets) (*Metric, error) {
 // bounces is the number of bounces of the ball.
 // angle is the angle of the ball.
 // lvl is the current level.
-func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl level.Level) {
-	// draw current FPS, bounces, current level
+func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl level.Level, ping1, ping2 *int64) {
+	// draw current FPS, bounces, current level, or ping if present
 	fpsText := fmt.Sprintf(
 		"FPS: %.f | Ball (bounces: %d, angle: %.f ) | Level: %s",
 		ebiten.ActualFPS(),
@@ -54,6 +56,32 @@ func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl leve
 		FontFace: m.textFace,
 		Position: geometry.Vector{
 			X: 5,
+			Y: 0,
+		},
+		Color: color.RGBA{0, 0, 0, 255},
+	}
+
+	uiText.Draw(screen)
+
+	if ping1 != nil && ping2 != nil {
+		m.drawPing(screen, ping1, ping2)
+	}
+}
+
+func (m *Metric) drawPing(screen *ebiten.Image, ping1, ping2 *int64) {
+	pingText := fmt.Sprintf(
+		"ping1: %4dms | ping2: %4dms",
+		*ping1,
+		*ping2,
+	)
+
+	adjustemnt, _ := text.Measure(pingText, m.textFace, 1)
+
+	uiText := ui.Text{
+		Value:    pingText,
+		FontFace: m.textFace,
+		Position: geometry.Vector{
+			X: float64(m.screenWidth) - adjustemnt - 5,
 			Y: 0,
 		},
 		Color: color.RGBA{0, 0, 0, 255},

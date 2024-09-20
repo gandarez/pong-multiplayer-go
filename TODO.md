@@ -10,3 +10,4 @@
 * There's a bug where sometimes the score starts from 1 instead of 0.
 * Adicionar modo de visualização de partidas online.
 * Adicionar modo de visualização de partidas antigas.
+* Ao clicar na tecla TAB entrar em modo debug e mostrar informações do jogo na barra superior.

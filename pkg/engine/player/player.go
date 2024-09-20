@@ -29,6 +29,24 @@ type (
 	}
 )
 
+// TODO: find a better way to handle multiplayer players.
+func NewMultiplayer(name string, side geometry.Side, screenWidth, screenHeight float64) *Player {
+	x := 15.0
+	if side == geometry.Right {
+		x = screenWidth - 25
+	}
+
+	return &Player{
+		bouncerHeight: bouncerHeight,
+		bouncerWidth:  bouncerWidth,
+		name:          name,
+		position: geometry.Vector{
+			X: x,
+			Y: (screenHeight - bouncerHeight) / 2,
+		},
+	}
+}
+
 // New creates a new player.
 func New(name string, side geometry.Side, screenWidth, screenHeight, fieldBorderWidth float64) *Player {
 	x := 15.0
@@ -105,8 +123,6 @@ func (p *Player) Position() geometry.Vector {
 // SetPosition sets the Y position of the player.
 func (p *Player) SetPosition(y float64) {
 	p.position.Y = y
-
-	p.keepInBounds()
 }
 
 // Name returns the name of the player.

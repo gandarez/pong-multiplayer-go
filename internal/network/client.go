@@ -9,10 +9,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const BaseURL = "game.go-go.dev"
+
 type Client struct {
-	Conn       *websocket.Conn
+	conn       *websocket.Conn
 	serverURL  string
-	PlayerName string
+	playerName string
 	ctx        context.Context
 	cancel     context.CancelFunc
 }
@@ -22,33 +24,33 @@ func NewClient(playerName, serverURL string) *Client {
 
 	return &Client{
 		serverURL:  serverURL,
-		PlayerName: playerName,
+		playerName: playerName,
 		ctx:        ctx,
 		cancel:     cancel,
 	}
 }
 
 func (c *Client) Connect() error {
-	u := url.URL{Scheme: "ws", Host: c.serverURL, Path: "/ws"}
+	u := url.URL{Scheme: "ws", Host: c.serverURL, Path: "/multiplayer"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		return err
 	}
-	c.Conn = conn
+	c.conn = conn
 
 	playerInfo := struct {
 		Name string `json:"name"`
 	}{
-		Name: c.PlayerName,
+		Name: c.playerName,
 	}
 
-	if err := c.Conn.WriteJSON(playerInfo); err != nil {
+	if err := c.conn.WriteJSON(playerInfo); err != nil {
 		return err
 	}
 
-	c.Conn.SetPingHandler(func(appData string) error {
-		return c.Conn.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(time.Second))
+	c.conn.SetPingHandler(func(appData string) error {
+		return c.conn.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(time.Second))
 	})
 
 	return nil
@@ -56,8 +58,8 @@ func (c *Client) Connect() error {
 
 func (c *Client) Close() {
 	c.cancel()
-	if c.Conn != nil {
-		c.Conn.Close()
+	if c.conn != nil {
+		c.conn.Close()
 	}
 }
 
@@ -72,8 +74,8 @@ func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) {
 				return
 			default:
 				var gameState GameState
-				if err := c.Conn.ReadJSON(&gameState); err != nil {
-					slog.Error("Error reading JSON from connection", slog.Any("error", err))
+				if err := c.conn.ReadJSON(&gameState); err != nil {
+					slog.Error("error reading json from connection", slog.Any("error", err))
 					continue
 				}
 				gameStateChan <- gameState
@@ -83,5 +85,5 @@ func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) {
 }
 
 func (c *Client) SendPlayerInput(input PlayerInput) error {
-	return c.Conn.WriteJSON(input)
+	return c.conn.WriteJSON(input)
 }

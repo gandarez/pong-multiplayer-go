@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"sync"
 
@@ -12,7 +13,9 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/assets"
 	"github.com/gandarez/pong-multiplayer-go/internal/ai"
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
+	"github.com/gandarez/pong-multiplayer-go/internal/network"
 	metric "github.com/gandarez/pong-multiplayer-go/internal/stat"
+	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
@@ -34,6 +37,8 @@ type state int
 const (
 	// notReady is used to show the main menu.
 	notReady state = iota
+	// waiting is used when the game is waiting to connect to the party.
+	waiting
 	// playing is used when the game is being played.
 	playing
 	// ended is used when the game is over.
@@ -58,6 +63,12 @@ type Game struct {
 	score1 *score
 	score2 *score
 
+	// multiplayer
+	networkClient      *network.Client
+	networkGameStateCh chan network.GameState
+	ping1              *int64
+	ping2              *int64
+
 	// ready is used when the game is ready to play to create some objects only once
 	ready sync.Once
 }
@@ -70,17 +81,18 @@ func New(assets *assets.Assets) (*Game, error) {
 	}
 
 	// create the metric
-	metric, err := metric.New(assets)
+	metric, err := metric.New(assets, ScreenWidth)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create metric: %w", err)
 	}
 
 	return &Game{
-		assets: assets,
-		menu:   menu,
-		metric: metric,
-		ready:  sync.Once{},
-		state:  notReady,
+		assets:             assets,
+		networkGameStateCh: make(chan network.GameState),
+		menu:               menu,
+		metric:             metric,
+		ready:              sync.Once{},
+		state:              notReady,
 	}, nil
 }
 
@@ -107,9 +119,62 @@ func (g *Game) Update() error {
 			return nil
 		}
 
+		// if game mode is multiplayer, then change the state to waiting and wait for the connection
+		if g.menu.GameMode() == menu.Multiplayer {
+			g.state = waiting
+			return nil
+		}
+
 		// if the game is ready to play, change the state to playing
 		g.state = playing
+	case waiting:
+		if g.networkClient == nil {
+			g.networkClient = network.NewClient("player 1", network.BaseURL)
+			if err := g.networkClient.Connect(); err != nil {
+				return fmt.Errorf("failed to connect to the server: %w", err)
+			}
+
+			g.networkClient.ReceiveGameState(g.networkGameStateCh)
+
+			go func() {
+				// wait for the connection to be closed
+				<-g.networkGameStateCh
+
+				g.startMultiplayerMode()
+				g.state = playing
+			}()
+		}
 	case playing:
+		if g.menu.GameMode() == menu.Multiplayer {
+			gameState := <-g.networkGameStateCh
+
+			slog.Info("received game state", slog.Any("gameState", gameState))
+
+			// TODO: get player side when webscoket is ready
+			// update the game state
+			if gameState.CurrentPlayer.Side == geometry.Left {
+				g.player1.SetPosition(gameState.CurrentPlayer.PositionY)
+			} else {
+				g.player2.SetPosition(gameState.CurrentPlayer.PositionY)
+			}
+
+			if gameState.OpponentPlayer.Side == geometry.Left {
+				g.player1.SetPosition(gameState.OpponentPlayer.PositionY)
+			} else {
+				g.player2.SetPosition(gameState.OpponentPlayer.PositionY)
+			}
+
+			g.ball.SetPosition(gameState.BallPosition)
+
+			g.score1.value = gameState.CurrentPlayer.Score
+			g.score2.value = gameState.OpponentPlayer.Score
+
+			// TODO: get the ping from the right player (current player)
+			g.ping1 = &gameState.CurrentPlayer.Ping
+			g.ping2 = &gameState.OpponentPlayer.Ping
+		}
+
+		// local mode
 		if err := g.update(); err != nil {
 			return fmt.Errorf("failed to update the game: %w", err)
 		}
@@ -123,8 +188,10 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) update() error {
-	// update the ball
-	g.ball.Update(g.player1.Bounds(), g.player2.Bounds())
+	if g.menu.GameMode() != menu.Multiplayer {
+		// update the ball
+		g.ball.Update(g.player1.Bounds(), g.player2.Bounds())
+	}
 
 	// update the players
 	switch g.menu.GameMode() {
@@ -153,28 +220,45 @@ func (g *Game) update() error {
 			Up:   ebiten.IsKeyPressed(ebiten.KeyUp),
 			Down: ebiten.IsKeyPressed(ebiten.KeyDown),
 		})
+	case menu.Multiplayer:
+		up := ebiten.IsKeyPressed(ebiten.KeyUp)
+		down := ebiten.IsKeyPressed(ebiten.KeyDown)
+
+		// only send the player input if the user is pressing the keys
+		if up || down {
+			g.networkClient.SendPlayerInput(network.PlayerInput{
+				Up:   up,
+				Down: down,
+			})
+		}
 	}
 
-	// check if the ball is out of the field and update the scores
-	if out, side := g.ball.CheckGoal(); out {
-		if side == geometry.Left {
-			g.score2.value++
-		} else {
-			g.score1.value++
+	if g.menu.GameMode() != menu.Multiplayer {
+		// check if the ball is out of the field and update the scores
+		if out, side := g.ball.CheckGoal(); out {
+			if side == geometry.Left {
+				g.score2.value++
+			} else {
+				g.score1.value++
+			}
+
+			if g.nextSide == geometry.Left {
+				g.nextSide = geometry.Right
+			} else {
+				g.nextSide = geometry.Left
+			}
+
+			g.ball = &ball{g.ball.Reset(g.nextSide)}
 		}
 
-		if g.nextSide == geometry.Left {
-			g.nextSide = geometry.Right
-		} else {
-			g.nextSide = geometry.Left
+		// game has ended?
+		if g.gameEnded() {
+			if g.networkClient != nil {
+				g.networkClient.Close()
+			}
+
+			g.state = ended
 		}
-
-		g.ball = &ball{g.ball.Reset(g.nextSide)}
-	}
-
-	// game has ended?
-	if g.gameEnded() {
-		g.state = ended
 	}
 
 	return nil
@@ -188,6 +272,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if !g.menu.IsReadyToPlay() {
 			g.menu.Draw(screen)
 		}
+	case waiting:
+		// TODO: draw PONGO title
+		ui.DrawWaitingConnection(screen, g.assets, ScreenWidth)
 	case playing:
 		g.draw(screen)
 	case ended:
@@ -198,7 +285,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func (g *Game) draw(screen *ebiten.Image) {
 	// initialize the game. It's thread-safe.
-	if err := g.start(g.menu.Level()); err != nil {
+	if err := g.startLocalMode(g.menu.Level()); err != nil {
 		// panic is not the best way to handle this error, but Draw() does not return an error
 		panic(fmt.Errorf("failed to start the game: %w", err))
 	}
@@ -207,7 +294,7 @@ func (g *Game) draw(screen *ebiten.Image) {
 	g.drawField(screen)
 
 	// draw the metric
-	g.metric.Draw(screen, g.ball.Bounces(), g.ball.Angle(), g.menu.Level())
+	g.metric.Draw(screen, g.ball.Bounces(), g.ball.Angle(), g.menu.Level(), g.ping1, g.ping2)
 
 	// draw the ball
 	g.ball.draw(screen)
@@ -231,7 +318,7 @@ func (g *Game) gameEnded() bool {
 	return g.score1.value == maxScore || g.score2.value == maxScore
 }
 
-func (g *Game) start(lvl level.Level) (errstart error) {
+func (g *Game) startLocalMode(lvl level.Level) (errstart error) {
 	g.ready.Do(func() {
 		scoreTextFaceSource, err := g.assets.NewTextFaceSource("score")
 		if err != nil {
@@ -278,6 +365,50 @@ func (g *Game) start(lvl level.Level) (errstart error) {
 
 		g.ball = &ball{
 			engineball.New(nextPlayer, ScreenWidth, ScreenHeight, lvl),
+		}
+	})
+
+	return //nolint:revive
+}
+
+func (g *Game) startMultiplayerMode() (errstart error) {
+	g.ready.Do(func() {
+		scoreTextFaceSource, err := g.assets.NewTextFaceSource("score")
+		if err != nil {
+			errstart = fmt.Errorf("failed to create score text face source: %w", err)
+			return
+		}
+
+		p1 := engineplayer.NewMultiplayer("Player 1", geometry.Left, ScreenWidth, ScreenHeight)
+		p2 := engineplayer.NewMultiplayer("Player 2", geometry.Right, ScreenWidth, ScreenHeight)
+
+		g.player1 = &player{p1}
+		g.player2 = &player{p2}
+
+		pongScoreFontFace := &text.GoTextFace{
+			Source: scoreTextFaceSource,
+			Size:   44,
+		}
+
+		score1AdjustmentPositionX, _ := text.Measure("0", pongScoreFontFace, 1)
+
+		g.score1 = &score{
+			textFace: pongScoreFontFace,
+			position: geometry.Vector{
+				X: ScreenWidth/2 - 50 - score1AdjustmentPositionX,
+				Y: 30,
+			},
+		}
+		g.score2 = &score{
+			textFace: pongScoreFontFace,
+			position: geometry.Vector{
+				X: ScreenWidth/2 + 70,
+				Y: 30,
+			},
+		}
+
+		g.ball = &ball{
+			engineball.NewMultiplayer(),
 		}
 	})
 

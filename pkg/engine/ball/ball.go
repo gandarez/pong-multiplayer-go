@@ -26,6 +26,13 @@ type Ball struct {
 	width        float64
 }
 
+// TODO: find a better way to handle multiplayer players.
+func NewMultiplayer() *Ball {
+	return &Ball{
+		width: width,
+	}
+}
+
 // New creates a new ball.
 // nextSide is the side that the ball will go when the game starts.
 // screenWidth and screenHeight are the dimensions of the screen.
@@ -144,6 +151,11 @@ func (b *Ball) Width() float64 {
 // Position returns the position of the ball.
 func (b *Ball) Position() geometry.Vector {
 	return b.position
+}
+
+// SetPosition sets the position of the ball.
+func (b *Ball) SetPosition(pos geometry.Vector) {
+	b.position = pos
 }
 
 func calcInitialAngle(nextSide geometry.Side) float64 {

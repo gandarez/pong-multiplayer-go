@@ -17,13 +17,13 @@ import (
 
 const (
 	// menu strings.
-	backStr                    = "Back"
-	localModeStr               = "Local Mode"
-	multiplayerStr             = "Multiplayer"
-	multiplayerFindOpponentStr = "Finding opponent.."
-	onePlayerStr               = "One Player"
-	titleStr                   = "PONGO"
-	twoPlayersStr              = "Two Players"
+	backStr        = "Back"
+	localModeStr   = "Local Mode"
+	multiplayerStr = "Multiplayer"
+	// multiplayerFindOpponentStr = "Finding opponent.."
+	onePlayerStr  = "One Player"
+	titleStr      = "PONGO"
+	twoPlayersStr = "Two Players"
 
 	// levels.
 	levelEasyStr   = "Easy"
@@ -37,7 +37,7 @@ type state int
 const (
 	mainMenu state = iota
 	localMode
-	multiplayerMode
+	// multiplayerMode
 	levelSelection
 )
 
@@ -154,7 +154,9 @@ func (m *Menu) Update() {
 				m.state = localMode
 				m.selectedOption = 0
 			case 1:
-				m.state = multiplayerMode
+				// m.state = multiplayerMode
+				m.gameMode = Multiplayer
+				m.state = levelSelection
 				m.selectedOption = 0
 			}
 		case localMode:
@@ -190,7 +192,7 @@ func (m *Menu) Update() {
 				m.level = level.Hard
 				m.readyToPlay = true
 			case 3:
-				m.state = localMode
+				m.state = mainMenu
 				m.gameMode = Undefined
 				m.readyToPlay = false
 				m.selectedOption = 0
@@ -211,8 +213,8 @@ func (m *Menu) Draw(screen *ebiten.Image) {
 		m.drawText(screen, &submenuTitleTextFace, true, localModeStr, multiplayerStr)
 	case localMode:
 		m.drawText(screen, &submenuTitleTextFace, true, onePlayerStr, twoPlayersStr, backStr)
-	case multiplayerMode:
-		m.drawText(screen, &submenuTitleTextFace, false, multiplayerFindOpponentStr)
+	// case multiplayerMode:
+	// 	m.drawText(screen, &submenuTitleTextFace, false, multiplayerFindOpponentStr)
 	case levelSelection:
 		m.drawText(screen, &submenuTitleTextFace, true, levelEasyStr, levelMediumStr, levelHardStr, backStr)
 	}
