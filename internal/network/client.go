@@ -32,10 +32,15 @@ func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string)
 
 // Connect connects the client to the server.
 func (c *Client) Connect() error {
-	u := url.URL{Scheme: "ws", Host: c.serverURL, Path: "/multiplayer"}
+	u := url.URL{Scheme: "wss", Host: c.serverURL, Path: "/multiplayer"}
 
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	conn, res, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
+		if res != nil {
+			slog.Error("Failed WebSocket connection", slog.String("url", u.String()), slog.Int("status", res.StatusCode), slog.Any("error", err))
+		} else {
+			slog.Error("Failed WebSocket connection", slog.String("url", u.String()), slog.Any("error", err))
+		}
 		return err
 	}
 
