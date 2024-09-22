@@ -24,7 +24,7 @@ func (g *Game) drawWinner(screen *ebiten.Image) {
 		panic(fmt.Errorf("failed to create winner text face: %w", err))
 	}
 
-	winnerText := fmt.Sprintf("%s won", winner)
+	winnerText := fmt.Sprintf("%s WON", winner)
 
 	width, _ := text.Measure(winnerText, textFace, 1)
 

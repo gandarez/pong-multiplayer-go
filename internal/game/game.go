@@ -21,7 +21,6 @@ import (
 	metric "github.com/gandarez/pong-multiplayer-go/internal/stat"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
-	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
@@ -157,7 +156,7 @@ func (g *Game) Update() error {
 				<-g.networkGameStateCh
 
 				// TODO: check if start returns an error
-				_ = g.start(g.menu.GameMode(), pointerTo(g.menu.Level()))
+				_ = g.start()
 				g.state = playing
 			}()
 		}
@@ -313,7 +312,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func (g *Game) draw(screen *ebiten.Image) {
 	// initialize the game. It's thread-safe.
-	if err := g.start(g.menu.GameMode(), pointerTo(g.menu.Level())); err != nil {
+	if err := g.start(); err != nil {
 		// panic is not the best way to handle this error, but Draw() does not return an error
 		panic(fmt.Errorf("failed to start the game: %w", err))
 	}
@@ -363,7 +362,7 @@ func (g *Game) gameEnded() bool {
 	return g.score1.value == maxScore || g.score2.value == maxScore
 }
 
-func (g *Game) start(gameMode menu.GameMode, lvl *level.Level) (errstart error) {
+func (g *Game) start() (errstart error) {
 	g.ready.Do(func() {
 		pongScoreTextFace, err := g.font.Face("score", 44)
 		if err != nil {
@@ -385,49 +384,22 @@ func (g *Game) start(gameMode menu.GameMode, lvl *level.Level) (errstart error) 
 			p1, p2 engineplayer.Player
 		)
 
-		switch gameMode {
-		case menu.OnePlayer, menu.TwoPlayers:
-			p1, err = newLocalPlayer("Player 1", geometry.Left)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create player 1: %w", err)
-				return
-			}
+		switch g.menu.GameMode() {
+		case menu.OnePlayer:
+			p1 = engineplayer.NewLocal("CPU", geometry.Left, ScreenWidth, ScreenHeight, fieldBorderWidth)
+			p2 = engineplayer.NewLocal("Player", geometry.Right, ScreenWidth, ScreenHeight, fieldBorderWidth)
 
-			p2, err = newLocalPlayer("Player 2", geometry.Right)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create player 2: %w", err)
-				return
-			}
+			b = engineball.NewLocal(geometry.Left, ScreenWidth, ScreenHeight, g.menu.Level())
+		case menu.TwoPlayers:
+			p1 = engineplayer.NewLocal("Player 1", geometry.Left, ScreenWidth, ScreenHeight, fieldBorderWidth)
+			p2 = engineplayer.NewLocal("Player 2", geometry.Right, ScreenWidth, ScreenHeight, fieldBorderWidth)
 
-			b, err = engineball.New(
-				engineball.KindLocal,
-				pointerTo(nextPlayer),
-				pointerTo(ScreenWidth),
-				pointerTo(ScreenHeight),
-				lvl,
-			)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create ball: %w", err)
-				return
-			}
+			b = engineball.NewLocal(geometry.Left, ScreenWidth, ScreenHeight, g.menu.Level())
 		case menu.Multiplayer:
-			p1, err = newNetworkPlayer("Player 1", geometry.Left)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create player 1: %w", err)
-				return
-			}
+			p1 = engineplayer.NewNetwork("Player 1", geometry.Left, ScreenWidth, ScreenHeight)
+			p2 = engineplayer.NewNetwork("Player 2", geometry.Right, ScreenWidth, ScreenHeight)
 
-			p2, err = newNetworkPlayer("Player 2", geometry.Right)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create player 2: %w", err)
-				return
-			}
-
-			b, err = engineball.New(engineball.KindNetwork, nil, nil, nil, nil)
-			if err != nil {
-				errstart = fmt.Errorf("failed to create ball: %w", err)
-				return
-			}
+			b = engineball.NewNetwork()
 		}
 
 		g.player1 = &player{p1}
@@ -455,26 +427,4 @@ func (g *Game) start(gameMode menu.GameMode, lvl *level.Level) (errstart error) 
 	})
 
 	return //nolint:revive
-}
-
-func newLocalPlayer(name string, side geometry.Side) (engineplayer.Player, error) {
-	p, err := engineplayer.New(engineplayer.KindLocal, name, side, ScreenWidth, ScreenHeight, pointerTo(fieldBorderWidth))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create player: %w", err)
-	}
-
-	return p, nil
-}
-
-func newNetworkPlayer(name string, side geometry.Side) (engineplayer.Player, error) {
-	p, err := engineplayer.New(engineplayer.KindNetwork, name, side, ScreenWidth, ScreenHeight, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create player: %w", err)
-	}
-
-	return p, nil
-}
-
-func pointerTo[T int | float64 | geometry.Side | level.Level](p T) *T {
-	return &p
 }

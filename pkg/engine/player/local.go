@@ -10,7 +10,8 @@ type Local struct {
 	*player
 }
 
-func newLocal(name string, positionX, screenWidth, screenHeight, fieldBorderWidth float64) *Local {
+// NewLocal creates a new player to play locally.
+func NewLocal(name string, side geometry.Side, screenWidth, screenHeight, fieldBorderWidth float64) *Local {
 	return &Local{
 		screenHeight:     screenHeight,
 		screenWidth:      screenWidth,
@@ -20,7 +21,7 @@ func newLocal(name string, positionX, screenWidth, screenHeight, fieldBorderWidt
 			bouncerHeight: bouncerHeight,
 			bouncerWidth:  bouncerWidth,
 			position: geometry.Vector{
-				X: positionX,
+				X: calculatePositionX(side, screenWidth),
 				Y: (screenHeight - bouncerHeight) / 2,
 			},
 		},

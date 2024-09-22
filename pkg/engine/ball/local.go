@@ -19,7 +19,11 @@ type Local struct {
 	*ball
 }
 
-func newLocal(nextSide geometry.Side, screenWidth, screenHeight float64, lvl level.Level) *Local {
+// NewLocal creates a new ball to play locally.
+// nextSide is the side that the ball will go when the game starts.
+// screenWidth and screenHeight are the dimensions of the screen.
+// lvl is the level of the game.
+func NewLocal(nextSide geometry.Side, screenWidth, screenHeight float64, lvl level.Level) *Local {
 	return &Local{
 		angle:        calcInitialAngle(nextSide),
 		bounces:      0,
@@ -74,7 +78,7 @@ func (b *Local) Position() geometry.Vector {
 
 // Reset resets the position of the ball.
 func (b *Local) Reset(nextSide geometry.Side) Ball {
-	return newLocal(nextSide, b.screenWidth, b.screenHeight, b.level)
+	return NewLocal(nextSide, b.screenWidth, b.screenHeight, b.level)
 }
 
 // SetPosition sets the position of the ball.

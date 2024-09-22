@@ -8,14 +8,15 @@ type Network struct {
 	*player
 }
 
-func newNetwork(name string, positionX, screenHeight float64) *Network {
+// NewNetwork creates a new player to play in a network game.
+func NewNetwork(name string, side geometry.Side, screenWidth, screenHeight float64) *Network {
 	return &Network{
 		player: &player{
 			name:          name,
 			bouncerHeight: bouncerHeight,
 			bouncerWidth:  bouncerWidth,
 			position: geometry.Vector{
-				X: positionX,
+				X: calculatePositionX(side, screenWidth),
 				Y: (screenHeight - bouncerHeight) / 2,
 			},
 		},

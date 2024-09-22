@@ -1,8 +1,6 @@
 package player
 
 import (
-	"errors"
-
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
@@ -10,16 +8,6 @@ const (
 	bouncerHeight = 50
 	bouncerWidth  = 10
 	movementSpeed = 4
-)
-
-// Kind represents the kind of player.
-type Kind int
-
-const (
-	// KindLocal represents a local player.
-	KindLocal Kind = iota
-	// KindNetwork represents a network player.
-	KindNetwork
 )
 
 type (
@@ -49,33 +37,14 @@ type (
 	}
 )
 
-// New creates a new player.
-func New(
-	kind Kind,
-	name string,
-	side geometry.Side,
-	screenWidth, screenHeight float64,
-	fieldBorderWidth *float64,
-) (Player, error) {
+// calculatePositionX calculates the initial X position of the player.
+func calculatePositionX(side geometry.Side, screenWidth float64) float64 {
 	x := 15.0
 	if side == geometry.Right {
 		x = screenWidth - 25
 	}
 
-	var player Player
-
-	switch kind {
-	case KindLocal:
-		if fieldBorderWidth == nil {
-			return nil, errors.New("fieldBorderWidth is required for local player")
-		}
-
-		player = newLocal(name, x, screenWidth, screenHeight, *fieldBorderWidth)
-	case KindNetwork:
-		player = newNetwork(name, x, screenHeight)
-	}
-
-	return player, nil
+	return x
 }
 
 // Bounds returns the bounds of the player.

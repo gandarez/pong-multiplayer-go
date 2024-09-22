@@ -7,7 +7,8 @@ type Network struct {
 	*ball
 }
 
-func newNetwork() *Network {
+// NewNetwork creates a new ball to play in a network game.
+func NewNetwork() *Network {
 	return &Network{
 		ball: &ball{
 			width: width,
