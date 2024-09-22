@@ -149,8 +149,8 @@ func (m *Menu) Update() {
 			case 1:
 				// multiplayer mode
 				m.gameMode = Multiplayer
-				m.state = levelSelection
-				m.selectedOption = 0
+				m.level = level.Medium // default level for multiplayer
+				m.readyToPlay = true
 			case 2:
 				// instructions
 				m.state = instructions
