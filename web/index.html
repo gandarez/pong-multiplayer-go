@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<style>
-    body {
-        background-color: #000000;
-    }
-
-    iframe {
-        margin: 0 auto;
-        display: block;
-        border: 0;
-    }
-</style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pongo Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
 <body>
-<iframe src="main.html" width="800" height="600" allow="autoplay"></iframe>
+    <div id="loading-screen">
+        <h2>Loading game, please wait...</h2>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <iframe id="gameFrame" src="main.html" width="800" height="600" allow="autoplay" style="display:none;"></iframe>
+
+    <script src="js/wasm_loader.js"></script>
 </body>
+</html>
