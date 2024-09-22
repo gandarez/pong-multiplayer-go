@@ -69,7 +69,7 @@ build-windows:
 		-o ${BUILD_DIR}/$(BINARY_NAME)-$(GOOS)-$(GOARCH).exe ./cmd/game/main.go
 
 build-wasm:
-	GOOS=js GOARCH=wasm $(GOBUILD) -o web/$(BINARY_NAME).wasm ./cmd/game/main.go
+	GOOS=js GOARCH=wasm $(GOBUILD) -o web/wasm/$(BINARY_NAME).wasm ./cmd/game/main.go
 
 install: install-deps install-linter
 

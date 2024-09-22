@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<script src="wasm_exec.js"></script>
-<script>
-// Polyfill
-if (!WebAssembly.instantiateStreaming) {
-    WebAssembly.instantiateStreaming = async (resp, importObject) => {
-        const source = await (await resp).arrayBuffer();
-        return await WebAssembly.instantiate(source, importObject);
-    };
-}
-
-const go = new Go();
-WebAssembly.instantiateStreaming(fetch("pongo.wasm"), go.importObject).then(result => {
-    go.run(result.instance);
-});
-</script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pongo Game</title>
+</head>
+<body>
+    <script src="wasm/wasm_exec.js"></script>
+    <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.wasmBytes) {
+                const go = new Go();
+                WebAssembly.instantiate(event.data.wasmBytes, go.importObject).then(result => {
+                    go.run(result.instance);
+                }).catch(err => {
+                    console.error("Error instantiating WASM:", err);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
