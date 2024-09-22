@@ -58,17 +58,17 @@ type Menu struct {
 	level          level.Level
 	state          state
 	selectedOption int8
-	screenWidth    float64
+	screenWidth    int
 	readyToPlay    bool
 }
 
 // New creates a new game menu.
-func New(font *font.Font, screenWidth float64) *Menu {
+func New(font *font.Font, screenWidth int) *Menu {
 	return &Menu{
 		font:        font,
 		gameMode:    Undefined,
 		state:       mainMenu,
-		screenWidth: float64(screenWidth),
+		screenWidth: screenWidth,
 	}
 }
 
@@ -248,7 +248,7 @@ func (m *Menu) drawOption(screen *ebiten.Image, values ...string) {
 			Value:    val,
 			FontFace: textFace,
 			Position: geometry.Vector{
-				X: (m.screenWidth - width) / 2,
+				X: (float64(m.screenWidth) - width) / 2,
 				Y: y,
 			},
 			Color: ui.DefaultColor,
@@ -266,7 +266,7 @@ func (m *Menu) drawOption(screen *ebiten.Image, values ...string) {
 
 	vector.DrawFilledRect(
 		screen,
-		float32(m.screenWidth-maxWidth)/2-30, float32(y),
+		float32(float64(m.screenWidth)-maxWidth)/2-30, float32(y),
 		15, 15, ui.DefaultColor, true,
 	)
 }
@@ -298,7 +298,7 @@ func (m *Menu) drawInstructions(screen *ebiten.Image) {
 			Value:    str,
 			FontFace: textFace,
 			Position: geometry.Vector{
-				X: (m.screenWidth - width) / 2,
+				X: (float64(m.screenWidth) - width) / 2,
 				Y: y,
 			},
 			Color: ui.DefaultColor,
@@ -316,7 +316,7 @@ func (m *Menu) drawInstructions(screen *ebiten.Image) {
 
 	vector.DrawFilledRect(
 		screen,
-		float32(m.screenWidth-maxWidth)/2-30, float32(y),
+		float32(float64(m.screenWidth)-maxWidth)/2-30, float32(y),
 		15, 15, ui.DefaultColor, true,
 	)
 }

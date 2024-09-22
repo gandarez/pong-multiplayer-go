@@ -46,6 +46,16 @@ func (*Network) Reset(_ geometry.Side) Ball {
 	panic("not implemented")
 }
 
+// SetAngle sets the angle of the ball.
+func (b *Network) SetAngle(angle float64) {
+	b.angle = angle
+}
+
+// SetBounces sets the number of bounces of the ball.
+func (b *Network) SetBounces(bounces int) {
+	b.bounces = bounces
+}
+
 // SetPosition sets the position of the ball.
 func (b *Network) SetPosition(pos geometry.Vector) {
 	b.position = pos

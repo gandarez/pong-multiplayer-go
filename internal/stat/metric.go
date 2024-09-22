@@ -18,12 +18,12 @@ var defaultColor = color.RGBA{0, 0, 0, 255}
 
 // Metric represents the game metric.
 type Metric struct {
-	screenWidth float64
+	screenWidth int
 	textFace    *text.GoTextFace
 }
 
 // New creates a new metric.
-func New(font *font.Font, screenWidth float64) (*Metric, error) {
+func New(font *font.Font, screenWidth int) (*Metric, error) {
 	textFace, err := font.Face("stat", 9)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create text face: %w", err)

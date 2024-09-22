@@ -10,8 +10,6 @@ import (
 
 // Local represents the ball in a local game.
 type Local struct {
-	angle        float64
-	bounces      int
 	level        level.Level
 	screenHeight float64
 	screenWidth  float64
@@ -25,13 +23,13 @@ type Local struct {
 // lvl is the level of the game.
 func NewLocal(nextSide geometry.Side, screenWidth, screenHeight float64, lvl level.Level) *Local {
 	return &Local{
-		angle:        calcInitialAngle(nextSide),
-		bounces:      0,
 		level:        lvl,
 		screenHeight: screenHeight,
 		screenWidth:  screenWidth,
 		speed:        initialSpeed,
 		ball: &ball{
+			angle:   calcInitialAngle(nextSide),
+			bounces: 0,
 			position: geometry.Vector{
 				X: (screenWidth - width) / 2,
 				Y: (screenHeight - width) / 2,
@@ -79,6 +77,16 @@ func (b *Local) Position() geometry.Vector {
 // Reset resets the position of the ball.
 func (b *Local) Reset(nextSide geometry.Side) Ball {
 	return NewLocal(nextSide, b.screenWidth, b.screenHeight, b.level)
+}
+
+// SetAngle will panic because it is not implemented.
+func (*Local) SetAngle(_ float64) {
+	panic("not implemented")
+}
+
+// SetBounces will panic because it is not implemented.
+func (*Local) SetBounces(_ int) {
+	panic("not implemented")
 }
 
 // SetPosition sets the position of the ball.

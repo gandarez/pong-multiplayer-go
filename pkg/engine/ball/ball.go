@@ -12,6 +12,8 @@ const (
 
 type (
 	ball struct {
+		angle    float64
+		bounces  int
 		position geometry.Vector
 		width    float64
 	}
@@ -24,6 +26,8 @@ type (
 		CheckGoal() (bool, geometry.Side)
 		Position() geometry.Vector
 		Reset(nextSide geometry.Side) Ball
+		SetAngle(angle float64)
+		SetBounces(bounces int)
 		SetPosition(pos geometry.Vector)
 		Update(p1Bounds, p2Bounds geometry.Rect)
 		Width() float64

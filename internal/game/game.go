@@ -27,11 +27,11 @@ import (
 
 const (
 	// maxScore is the maximum score to win the game.
-	maxScore = 1
+	maxScore = 10
 	// ScreenWidth is the width of the screen.
-	ScreenWidth float64 = 640
+	ScreenWidth = 640
 	// ScreenHeight is the height of the screen.
-	ScreenHeight float64 = 480
+	ScreenHeight = 480
 )
 
 // state represents the state of the game.
@@ -143,10 +143,20 @@ func (g *Game) Update() error {
 		g.state = playing
 	case connecting:
 		if g.networkClient == nil {
-			// TODO: get player name from input
-			g.networkClient = network.NewClient(g.ctx, g.cancel, "player 1", network.BaseURL)
+			g.networkClient = network.NewClient(g.ctx, g.cancel, network.BaseURL)
 			if err := g.networkClient.Connect(); err != nil {
 				return fmt.Errorf("failed to connect to the server: %w", err)
+			}
+
+			// TODO: get player name from input
+			if err := g.networkClient.SendPlayerInfo(network.PlayerInfo{
+				Name:         "Player 1",
+				Level:        int(g.menu.Level()),
+				ScreenWidth:  ScreenWidth,
+				ScreenHeight: ScreenHeight,
+				MaxScore:     maxScore,
+			}); err != nil {
+				return fmt.Errorf("failed to send player info: %w", err)
 			}
 
 			g.networkClient.ReceiveGameState(g.networkGameStateCh)
@@ -180,7 +190,9 @@ func (g *Game) Update() error {
 				g.player2.SetPosition(gameState.OpponentPlayer.PositionY)
 			}
 
-			g.ball.SetPosition(gameState.BallPosition)
+			g.ball.SetAngle(gameState.Ball.Angle)
+			g.ball.SetBounces(gameState.Ball.Bounces)
+			g.ball.SetPosition(gameState.Ball.Position)
 
 			g.score1.value = gameState.CurrentPlayer.Score
 			g.score2.value = gameState.OpponentPlayer.Score
