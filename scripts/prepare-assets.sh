@@ -15,24 +15,18 @@ fi
 # add execution permission
 chmod 750 ./build/pongo-darwin-amd64
 chmod 750 ./build/pongo-darwin-arm64
-chmod 750 ./build/pongo-linux-386
 chmod 750 ./build/pongo-linux-amd64
-chmod 750 ./build/pongo-linux-arm
 chmod 750 ./build/pongo-linux-arm64
 chmod 750 ./build/pongo-linux-riscv64
-chmod 750 ./build/pongo-windows-386.exe
 chmod 750 ./build/pongo-windows-amd64.exe
 chmod 750 ./build/pongo-windows-arm64.exe
 
 # create archives
 zip -j ./release/pongo-darwin-amd64.zip ./build/pongo-darwin-amd64
 zip -j ./release/pongo-darwin-arm64.zip ./build/pongo-darwin-arm64
-zip -j ./release/pongo-linux-386.zip ./build/pongo-linux-386
 zip -j ./release/pongo-linux-amd64.zip ./build/pongo-linux-amd64
-zip -j ./release/pongo-linux-arm.zip ./build/pongo-linux-arm
 zip -j ./release/pongo-linux-arm64.zip ./build/pongo-linux-arm64
 zip -j ./release/pongo-linux-riscv64.zip ./build/pongo-linux-riscv64
-zip -j ./release/pongo-windows-386.zip ./build/pongo-windows-386.exe
 zip -j ./release/pongo-windows-amd64.zip ./build/pongo-windows-amd64.exe
 zip -j ./release/pongo-windows-arm64.zip ./build/pongo-windows-arm64.exe
 
