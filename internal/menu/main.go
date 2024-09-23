@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -32,7 +33,13 @@ func (s *MainMenuState) Update() {
 		case 0:
 			s.menu.ChangeState(NewLocalModeState(s.menu))
 		case 1:
-			s.menu.ChangeState(NewInputNameState(s.menu))
+			if s.menu.playerName != "" {
+				s.menu.gameMode = Multiplayer
+				s.menu.level = level.Medium
+				s.menu.readyToPlay = true
+			} else {
+				s.menu.ChangeState(NewInputNameState(s.menu))
+			}
 		case 2:
 			s.menu.ChangeState(NewInstructionsState(s.menu))
 		}
