@@ -11,11 +11,13 @@ import (
 )
 
 const (
+  // BaseURL is the base URL of the server.
 	BaseURL     = "game.go-go.dev"
 	writeWait   = 10 * time.Second
 	readTimeout = 60 * time.Second
 )
 
+// Client represents a client that connects to the server using websocket.
 type Client struct {
 	conn      *websocket.Conn
 	serverURL string
@@ -23,6 +25,7 @@ type Client struct {
 	cancel    context.CancelFunc
 }
 
+// NewClient creates a new client with the given player name and server URL.
 func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string) *Client {
 	return &Client{
 		serverURL: serverURL,
@@ -31,6 +34,7 @@ func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string)
 	}
 }
 
+// Connect connects the client to the server.
 func (c *Client) Connect() error {
 	u := fmt.Sprintf("wss://%s/multiplayer", c.serverURL)
 
@@ -47,6 +51,7 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+// ReceiveGameState receives the game state from the server and sends it to the given channel.
 func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) error {
 	defer close(gameStateChan)
 
@@ -69,6 +74,7 @@ func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) error {
 	}
 }
 
+// Close closes the client connection.
 func (c *Client) Close() {
 	c.cancel()
 	if c.conn == nil {
@@ -82,11 +88,14 @@ func (c *Client) Close() {
 	}
 }
 
-func (c *Client) SendPlayerInfo(pi PlayerInfo) error {
+
+// SendPlayerInfo sends the player info to the server.
+// It's used to register the player in the server.
+func (c *Client) SendPlayerInfo(gi GameInfo) error {
 	ctx, cancel := context.WithTimeout(c.ctx, writeWait)
 	defer cancel()
 
-	if err := wsjson.Write(ctx, c.conn, pi); err != nil {
+	if err := wsjson.Write(ctx, c.conn, gi); err != nil {
 		return fmt.Errorf("failed to send player info: %w", err)
 	}
 
@@ -94,6 +103,7 @@ func (c *Client) SendPlayerInfo(pi PlayerInfo) error {
 	return nil
 }
 
+// SendPlayerInput sends the player input to the server.
 func (c *Client) SendPlayerInput(input PlayerInput) error {
 	ctx, cancel := context.WithTimeout(c.ctx, writeWait)
 	defer cancel()

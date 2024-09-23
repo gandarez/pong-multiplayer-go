@@ -19,20 +19,20 @@ type (
 
 	// PlayerState represents the state of a player when it is sent over the network.
 	PlayerState struct {
-		// TODO: add player ID to better identify them
 		PositionY float64       `json:"position_y"`
 		Side      geometry.Side `json:"side"`
 		Score     int8          `json:"score"`
 		Ping      int64         `json:"ping"`
 	}
 
-	// PlayerInfo represents the information of a player when it is sent over the network.
-	PlayerInfo struct {
-		Name         string `json:"name"`
-		Level        int    `json:"level"`
-		ScreenWidth  int    `json:"screen_width"`
-		ScreenHeight int    `json:"screen_height"`
-		MaxScore     int    `json:"max_score"`
+	// GameInfo represents the information of a game when it is sent over the network.
+	GameInfo struct {
+		PlayerName       string `json:"player_name"`
+		Level            int    `json:"level"`
+		ScreenWidth      int    `json:"screen_width"`
+		ScreenHeight     int    `json:"screen_height"`
+		MaxScore         int    `json:"max_score"`
+		FieldBorderWidth int    `json:"field_border_width"`
 	}
 
 	// PlayerInput represents the keyboard/touch input of the player when it is sent over the network.
