@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"time"
 	"unicode/utf8"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,13 +14,22 @@ import (
 )
 
 type InputNameState struct {
-	menu *Menu
+	menu          *Menu
+	cursorVisible bool
+	cursorTicker  *time.Ticker
 }
 
 func NewInputNameState(menu *Menu) *InputNameState {
-	return &InputNameState{
+	state := &InputNameState{
 		menu: menu,
 	}
+	state.cursorTicker = time.NewTicker(500 * time.Millisecond)
+	go func() {
+		for range state.cursorTicker.C {
+			state.cursorVisible = !state.cursorVisible
+		}
+	}()
+	return state
 }
 
 func (s *InputNameState) Update() {
@@ -64,7 +74,9 @@ func (s *InputNameState) Draw(screen Screen) {
 	uiText.Draw(screen.(*ebiten.Image))
 
 	name := s.menu.playerName
-
+	if s.cursorVisible {
+		name += "_"
+	}
 	widthName, _ := text.Measure(name, textFace, 1)
 	uiText = ui.Text{
 		Value:    name,
