@@ -1,15 +1,13 @@
-// internal/game/multiplayer_state.go
-
 package game
 
 import (
 	"log/slog"
 
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"github.com/gandarez/pong-multiplayer-go/internal/network"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type MultiplayerState struct {
@@ -21,17 +19,24 @@ type MultiplayerState struct {
 	score2  *score
 }
 
-func NewMultiplayerState(game *Game, gameState network.GameState) *MultiplayerState {
+func NewMultiplayerState(game *Game, ready network.ReadyMessage) *MultiplayerState {
 	base := NewBasePlayingState(game, game.menu.Level())
 
-	// Initialize players with names from gameState
-	player1 := player.NewNetwork(gameState.CurrentPlayer.Name, gameState.CurrentPlayer.Side, ScreenWidth, ScreenHeight)
-	player2 := player.NewNetwork(gameState.OpponentPlayer.Name, gameState.OpponentPlayer.Side, ScreenWidth, ScreenHeight)
+	// Assign sides based on the ReadyMessage
+	var opponentSide geometry.Side
+	if ready.Side == geometry.Right {
+		opponentSide = geometry.Left
+	} else {
+		opponentSide = geometry.Right
+	}
+
+	player1 := player.NewNetwork(ready.Name, ready.Side, ScreenWidth, ScreenHeight)
+	player2 := player.NewNetwork(ready.OpponentName, opponentSide, ScreenWidth, ScreenHeight)
 	ball := ball.NewNetwork()
 	score1 := newScore(base.game.font, ScreenWidth/2-100)
 	score2 := newScore(base.game.font, ScreenWidth/2+50)
 
-	return &MultiplayerState{
+	state := &MultiplayerState{
 		BasePlayingState: base,
 		ball:             ball,
 		player1:          player1,
@@ -39,10 +44,14 @@ func NewMultiplayerState(game *Game, gameState network.GameState) *MultiplayerSt
 		score1:           score1,
 		score2:           score2,
 	}
+
+	// Start listening for game state updates
+	go state.game.networkClient.ReceiveGameState(state.game.networkGameCh)
+
+	return state
 }
 
 func (s *MultiplayerState) Update() error {
-	// Update common elements
 	if err := s.BasePlayingState.Update(); err != nil {
 		return err
 	}
@@ -55,7 +64,6 @@ func (s *MultiplayerState) Update() error {
 	down := ebiten.IsKeyPressed(ebiten.KeyDown)
 
 	if up || down {
-		// Send input to server
 		if err := s.game.networkClient.SendPlayerInput(network.PlayerInput{
 			Up:   up,
 			Down: down,
@@ -64,37 +72,26 @@ func (s *MultiplayerState) Update() error {
 		}
 	}
 
-	// Receive game state from server and update local game state
-	select {
-	case gameState := <-s.game.networkGameCh:
-		// Update ball and players positions
-		s.ball.SetPosition(gameState.Ball.Position)
-		s.ball.SetAngle(gameState.Ball.Angle)
-		s.ball.SetBounces(gameState.Ball.Bounces)
+	gameState := <-s.game.networkGameCh
 
-		// Update player positions and scores
-		s.updatePlayerPositions(gameState)
-		s.updateScores(gameState)
+	s.ball.SetPosition(gameState.Ball.Position)
+	s.ball.SetAngle(gameState.Ball.Angle)
+	s.ball.SetBounces(gameState.Ball.Bounces)
 
-		// Check for winner
-		if s.score1.value == maxScore || s.score2.value == maxScore {
-			s.game.ChangeState(NewWinnerState(s.game, s.player1, s.player2, s.score1, s.score2))
-		}
-	default:
-		// No new game state received
+	s.updatePlayerPositions(gameState)
+	s.updateScores(gameState)
+
+	if s.score1.value == maxScore || s.score2.value == maxScore {
+		s.game.ChangeState(NewWinnerState(s.game, s.player1, s.player2, s.score1, s.score2))
 	}
 
 	return nil
 }
 
 func (s *MultiplayerState) updatePlayerPositions(gameState network.GameState) {
-	if s.player1.Side() == gameState.CurrentPlayer.Side {
-		s.player1.SetPosition(gameState.CurrentPlayer.PositionY)
-		s.player2.SetPosition(gameState.OpponentPlayer.PositionY)
-	} else {
-		s.player1.SetPosition(gameState.OpponentPlayer.PositionY)
-		s.player2.SetPosition(gameState.CurrentPlayer.PositionY)
-	}
+	// Directly assign positions
+	s.player1.SetPosition(gameState.CurrentPlayer.PositionY)
+	s.player2.SetPosition(gameState.OpponentPlayer.PositionY)
 }
 
 func (s *MultiplayerState) updateScores(gameState network.GameState) {
@@ -108,10 +105,8 @@ func (s *MultiplayerState) updateScores(gameState network.GameState) {
 }
 
 func (s *MultiplayerState) Draw(screen *ebiten.Image) {
-	// Draw common elements
 	s.BasePlayingState.Draw(screen)
 
-	// Draw players, ball, and scores
 	drawPlayer(s.player1, screen)
 	drawPlayer(s.player2, screen)
 	drawBall(s.ball, screen)

@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"github.com/gandarez/pong-multiplayer-go/internal/network"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// ConnectingState represents the state when the game is connecting to the server.
 type ConnectingState struct {
 	game            *Game
 	connectionError error
+	readyCh         chan network.ReadyMessage // Channel for ready messages
 }
 
-// NewConnectingState creates a new ConnectingState.
 func NewConnectingState(game *Game) *ConnectingState {
 	return &ConnectingState{
-		game: game,
+		game:    game,
+		readyCh: make(chan network.ReadyMessage), // Initialize the ready message channel
 	}
 }
 
@@ -31,31 +30,27 @@ func (s *ConnectingState) Update() error {
 	}
 
 	if s.game.networkClient == nil {
-		s.connectToServer()
+		s.connectToServer() // Attempt to connect to server
 	}
 
-	// Wait until the network game state channel is initialized
-	if s.game.networkGameCh != nil {
-		select {
-		case gameState := <-s.game.networkGameCh:
-			// Change to MultiplayerState
-			s.game.ChangeState(NewMultiplayerState(s.game, gameState))
-		default:
-			// No game state received yet
-		}
+	select {
+	case readyMessage := <-s.readyCh: // Wait for the ReadyMessage
+		slog.Info("Received ReadyMessage", slog.Any("readyMessage", readyMessage))
+		s.game.ChangeState(NewMultiplayerState(s.game, readyMessage)) // Transition to MultiplayerState
+	default:
+		// Continue waiting for ReadyMessage
 	}
 
 	return nil
 }
 
-// Draw draws the connecting state.
 func (s *ConnectingState) Draw(screen *ebiten.Image) {
 	ui.DrawSplash(screen, s.game.font, ScreenWidth)
 	ui.DrawWaitingConnection(screen, s.game.font, ScreenWidth)
 }
 
-// connectToServer connects to the game server.
 func (s *ConnectingState) connectToServer() {
+	s.game.networkGameCh = make(chan network.GameState)
 	s.game.networkClient = network.NewClient(s.game.ctx, s.game.cancel, network.BaseURL)
 	if err := s.game.networkClient.Connect(); err != nil {
 		s.connectionError = fmt.Errorf("failed to connect to server: %w", err)
@@ -74,8 +69,8 @@ func (s *ConnectingState) connectToServer() {
 	}
 
 	go func() {
-		if err := s.game.networkClient.ReceiveGameState(s.game.networkGameCh); err != nil {
-			slog.Error("Error receiving game state", slog.Any("error", err))
+		if err := s.game.networkClient.ReceiveReadyMessage(s.readyCh); err != nil {
+			slog.Error("Error receiving ready message", slog.Any("error", err))
 			s.connectionError = err
 		}
 	}()

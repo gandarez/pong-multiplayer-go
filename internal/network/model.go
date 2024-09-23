@@ -41,4 +41,12 @@ type (
 		Up   bool `json:"up"`
 		Down bool `json:"down"`
 	}
+
+	// ReadyMessage structure sent from the server
+	ReadyMessage struct {
+		Ready        bool          `json:"ready"`
+		Name         string        `json:"name"`
+		OpponentName string        `json:"opponent_name"`
+		Side         geometry.Side `json:"side"`
+	}
 )

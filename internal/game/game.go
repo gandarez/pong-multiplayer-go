@@ -45,12 +45,11 @@ func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) 
 	gameMenu := menu.New(font, ScreenWidth)
 
 	game := &Game{
-		cancel:        cancel,
-		ctx:           ctx,
-		font:          font,
-		menu:          gameMenu,
-		assets:        assets,
-		networkGameCh: make(chan network.GameState),
+		cancel: cancel,
+		ctx:    ctx,
+		font:   font,
+		menu:   gameMenu,
+		assets: assets,
 	}
 
 	// Set the initial state to MainMenuState

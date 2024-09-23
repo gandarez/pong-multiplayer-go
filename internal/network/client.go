@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BaseURL     = "game.go-go.dev"
+	BaseURL     = "localhost:8080"
 	writeWait   = 10 * time.Second
 	readTimeout = 60 * time.Second
 )
@@ -32,7 +32,7 @@ func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string)
 }
 
 func (c *Client) Connect() error {
-	u := fmt.Sprintf("wss://%s/multiplayer", c.serverURL)
+	u := fmt.Sprintf("ws://%s/multiplayer", c.serverURL)
 
 	ctx, cancel := context.WithTimeout(c.ctx, writeWait)
 	defer cancel()
@@ -47,6 +47,20 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+// ReceiveReadyMessage listens for the ReadyMessage from the server
+func (c *Client) ReceiveReadyMessage(readyCh chan ReadyMessage) error {
+	var msg ReadyMessage
+	err := wsjson.Read(c.ctx, c.conn, &msg)
+	if err != nil {
+		slog.Error("Failed to read ReadyMessage", slog.Any("error", err))
+		return err
+	}
+
+	readyCh <- msg
+
+	return nil
+}
+
 func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) error {
 	defer close(gameStateChan)
 
@@ -56,15 +70,14 @@ func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) error {
 			slog.Info("Client context canceled, closing message handler")
 			return nil
 		default:
-			ctx, cancel := context.WithTimeout(c.ctx, readTimeout)
-			defer cancel()
-
 			var gameState GameState
-			if err := wsjson.Read(ctx, c.conn, &gameState); err != nil {
+			if err := wsjson.Read(c.ctx, c.conn, &gameState); err != nil {
+				slog.Error("Failed to read game state", slog.Any("error", err))
 				return fmt.Errorf("failed to read game state: %w", err)
 			}
 
-			gameStateChan <- gameState
+			slog.Info("Received game state", slog.Any("gameState", gameState))
+
 		}
 	}
 }
