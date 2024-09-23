@@ -13,8 +13,25 @@
         </div>
     </div>
 
-    <iframe id="gameFrame" src="main.html" width="800" height="600" allow="autoplay" style="display:none;"></iframe>
+    <iframe id="gameFrame" src="main.html" allow="autoplay" style="display: none;"></iframe>
 
-    <script src="js/wasm_loader.js"></script>
+    <script>
+        const progressBar = document.getElementById('progress-bar');
+        const loadingScreen = document.getElementById('loading-screen');
+        const iframe = document.getElementById('gameFrame');
+
+        window.addEventListener('message', (event) => {
+            if (event.data.progress !== undefined) {
+                const percent = event.data.progress;
+                progressBar.style.width = percent + '%';
+                if (percent >= 100) {
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

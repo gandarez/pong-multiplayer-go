@@ -3,19 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>Pongo Game</title>
+    <script src="wasm/wasm_exec.js"></script>
 </head>
 <body>
-    <script src="wasm/wasm_exec.js"></script>
     <script>
-        window.addEventListener('message', (event) => {
-            if (event.data.wasmBytes) {
-                const go = new Go();
-                WebAssembly.instantiate(event.data.wasmBytes, go.importObject).then(result => {
-                    go.run(result.instance);
-                }).catch(err => {
-                    console.error("Error instantiating WASM:", err);
-                });
-            }
+        function updateProgress(percent) {
+            window.parent.postMessage({ progress: percent }, '*');
+        }
+
+        function fetchWithProgress(url) {
+            return fetch(url).then(response => {
+                const contentLength = response.headers.get('Content-Length');
+
+                if (!contentLength) {
+                    throw new Error('Content-Length header is missing');
+                }
+
+                const total = parseInt(contentLength, 10);
+                let loaded = 0;
+
+                return new Response(
+                    new ReadableStream({
+                        start(controller) {
+                            const reader = response.body.getReader();
+
+                            function read() {
+                                reader.read().then(({ done, value }) => {
+                                    if (done) {
+                                        controller.close();
+                                        return;
+                                    }
+
+                                    loaded += value.byteLength;
+                                    const percentComplete = Math.round((loaded / total) * 100);
+                                    updateProgress(percentComplete);
+
+                                    controller.enqueue(value);
+                                    read();
+                                }).catch(error => {
+                                    console.error('Error reading stream:', error);
+                                    controller.error(error);
+                                });
+                            }
+
+                            read();
+                        }
+                    })
+                );
+            });
+        }
+
+        fetchWithProgress('wasm/pongo.wasm').then(response => {
+            return response.arrayBuffer();
+        }).then(bytes => {
+            updateProgress(100);
+            const go = new Go();
+            WebAssembly.instantiate(bytes, go.importObject).then(result => {
+                go.run(result.instance);
+            }).catch(err => {
+                console.error("Error instantiating WASM:", err);
+            });
+        }).catch(err => {
+            console.error("Error loading WASM:", err);
         });
     </script>
 </body>
