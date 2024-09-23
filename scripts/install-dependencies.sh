@@ -3,17 +3,17 @@
 install_ubuntu() {
   echo "Detected Ubuntu. Installing dependencies..."
   sudo apt-get update
-  sudo apt-get install -y build-essential libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libasound2-dev libxxf86vm-dev
+  sudo apt-get install -y gcc-multilib g++-multilib libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
 }
 
 install_fedora() {
   echo "Detected Fedora. Installing dependencies..."
-  sudo dnf install -y @development-tools mesa-libGL-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel alsa-lib-devel libXxf86vm-devel
+  sudo dnf install -y @development-tools mesa-libGL-devel mesa-libGLES-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel libXxf86vm-devel alsa-lib-devel pkg-config
 }
 
 install_arch() {
   echo "Detected Arch Linux. Installing dependencies..."
-  sudo pacman -Sy --needed base-devel mesa libxrandr libxinerama libxcursor libxi alsa-lib libxxf86vm
+  sudo pacman -Sy --needed base-devel mesa libxrandr libxcursor libxinerama libxi pkg-config
 }
 
 install_opensuse() {

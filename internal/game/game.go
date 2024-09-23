@@ -150,11 +150,20 @@ func (g *Game) Update() error {
 
 			// TODO: get player name from input
 			if err := g.networkClient.SendPlayerInfo(network.GameInfo{
+<<<<<<< HEAD
 				PlayerName:   "Player 1",
 				Level:        int(g.menu.Level()),
 				ScreenWidth:  ScreenWidth,
 				ScreenHeight: ScreenHeight,
 				MaxScore:     maxScore,
+=======
+				PlayerName:       "Player 1",
+				Level:            int(g.menu.Level()),
+				ScreenWidth:      ScreenWidth,
+				ScreenHeight:     ScreenHeight,
+				MaxScore:         maxScore,
+				FieldBorderWidth: int(fieldBorderWidth),
+>>>>>>> feature/game-loading-bar
 			}); err != nil {
 				return fmt.Errorf("failed to send player info: %w", err)
 			}
@@ -172,10 +181,7 @@ func (g *Game) Update() error {
 		}
 	case playing:
 		if g.menu.GameMode() == menu.Multiplayer {
-			// TODO: get player side when webscoket is ready
 			gameState := <-g.networkGameStateCh
-
-			slog.Info("received game state", slog.Any("gameState", gameState))
 
 			// update the game state
 			if gameState.CurrentPlayer.Side == geometry.Left {
@@ -308,7 +314,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		// if the game is not ready to play, draw the menu
 		if !g.menu.IsReadyToPlay() {
 			ui.DrawSplash(screen, g.font, ScreenWidth)
-
 			g.menu.Draw(screen)
 		}
 	case connecting:
@@ -345,6 +350,12 @@ func (g *Game) draw(screen *ebiten.Image) {
 	// draw the players
 	g.player1.draw(screen)
 	g.player2.draw(screen)
+
+	// draw player names when multiplayer mode
+	if g.menu.GameMode() == menu.Multiplayer {
+		g.player1.drawName(screen, g.font)
+		g.player2.drawName(screen, g.font)
+	}
 }
 
 func (g *Game) tryDrawMetric(screen *ebiten.Image) {
@@ -356,7 +367,6 @@ func (g *Game) tryDrawMetric(screen *ebiten.Image) {
 		return
 	}
 
-	// TODO: in multiplayer mode bounces and angle are not updated
 	g.metric.Draw(screen, g.ball.Bounces(), g.ball.Angle(), g.menu.Level())
 
 	if g.menu.GameMode() == menu.Multiplayer {
@@ -376,9 +386,15 @@ func (g *Game) gameEnded() bool {
 
 func (g *Game) start() (errstart error) {
 	g.ready.Do(func() {
-		pongScoreTextFace, err := g.font.Face("score", 44)
+		scoreTextFace, err := g.font.Face("score", 44)
 		if err != nil {
 			errstart = fmt.Errorf("failed to create score text face: %w", err)
+			return
+		}
+
+		playerNameTextFace, err := g.font.Face("ui", 20)
+		if err != nil {
+			errstart = fmt.Errorf("failed to create player name text face: %w", err)
 			return
 		}
 
@@ -391,9 +407,12 @@ func (g *Game) start() (errstart error) {
 
 		g.nextSide = nextPlayer
 
+		scoreWidth, scoreHeight := text.Measure("0", scoreTextFace, 1)
+
 		var (
-			b      engineball.Ball
-			p1, p2 engineplayer.Player
+			b                              engineball.Ball
+			p1, p2                         engineplayer.Player
+			p1NamePosition, p2NamePosition geometry.Vector // only for multiplayer mode
 		)
 
 		switch g.menu.GameMode() {
@@ -401,36 +420,47 @@ func (g *Game) start() (errstart error) {
 			p1 = engineplayer.NewLocal("CPU", geometry.Left, ScreenWidth, ScreenHeight, fieldBorderWidth)
 			p2 = engineplayer.NewLocal("Player", geometry.Right, ScreenWidth, ScreenHeight, fieldBorderWidth)
 
-			b = engineball.NewLocal(geometry.Left, ScreenWidth, ScreenHeight, g.menu.Level())
+			b = engineball.NewLocal(nextPlayer, ScreenWidth, ScreenHeight, g.menu.Level())
 		case menu.TwoPlayers:
 			p1 = engineplayer.NewLocal("Player 1", geometry.Left, ScreenWidth, ScreenHeight, fieldBorderWidth)
 			p2 = engineplayer.NewLocal("Player 2", geometry.Right, ScreenWidth, ScreenHeight, fieldBorderWidth)
 
-			b = engineball.NewLocal(geometry.Left, ScreenWidth, ScreenHeight, g.menu.Level())
+			b = engineball.NewLocal(nextPlayer, ScreenWidth, ScreenHeight, g.menu.Level())
 		case menu.Multiplayer:
 			p1 = engineplayer.NewNetwork("Player 1", geometry.Left, ScreenWidth, ScreenHeight)
 			p2 = engineplayer.NewNetwork("Player 2", geometry.Right, ScreenWidth, ScreenHeight)
 
+			p1NameWidth, _ := text.Measure(p1.Name(), playerNameTextFace, 1)
+			p2NameWidth, _ := text.Measure(p2.Name(), playerNameTextFace, 1)
+
+			p1NamePosition = geometry.Vector{
+				X: ScreenWidth/2 - 10 - p1NameWidth,
+				Y: scoreHeight + 40,
+			}
+
+			p2NamePosition = geometry.Vector{
+				X: ScreenWidth/2 + (p2NameWidth / 2),
+				Y: scoreHeight + 40,
+			}
+
 			b = engineball.NewNetwork()
 		}
 
-		g.player1 = &player{p1}
-		g.player2 = &player{p2}
+		g.player1 = &player{p1NamePosition, p1}
+		g.player2 = &player{p2NamePosition, p2}
 		g.ball = &ball{
 			b,
 		}
 
-		score1Width, _ := text.Measure("0", pongScoreTextFace, 1)
-
 		g.score1 = &score{
-			textFace: pongScoreTextFace,
+			textFace: scoreTextFace,
 			position: geometry.Vector{
-				X: ScreenWidth/2 - 50 - score1Width,
+				X: ScreenWidth/2 - 50 - scoreWidth,
 				Y: 30,
 			},
 		}
 		g.score2 = &score{
-			textFace: pongScoreTextFace,
+			textFace: scoreTextFace,
 			position: geometry.Vector{
 				X: ScreenWidth/2 + 70,
 				Y: 30,
