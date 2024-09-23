@@ -13,6 +13,12 @@ import (
 // DefaultColor is the default color of the text.
 var DefaultColor = color.RGBA{200, 200, 200, 255}
 
+// HighlightColor is used to highlight selected options.
+var HighlightColor = color.RGBA{255, 255, 0, 255}
+
+// TransparentBlack is a semi-transparent black color for overlays.
+var TransparentBlack = color.RGBA{0, 0, 0, 128}
+
 // Text represents a text to be drawn on the screen.
 type Text struct {
 	Value    string
