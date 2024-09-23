@@ -20,6 +20,7 @@ type (
 	// PlayerState represents the state of a player when it is sent over the network.
 	PlayerState struct {
 		// TODO: add player ID to better identify them
+		Name      string        `json:"name"`
 		PositionY float64       `json:"position_y"`
 		Side      geometry.Side `json:"side"`
 		Score     int8          `json:"score"`

@@ -17,7 +17,7 @@ func main() {
 	ebiten.SetWindowSize(int(game.ScreenWidth)*2, int(game.ScreenHeight)*2)
 	ebiten.SetWindowTitle(title)
 
-	// load all assets
+	// Load all assets
 	assets, err := assets.Load()
 	if err != nil {
 		slog.Error("failed to load assets", slog.Any("error", err))
@@ -27,14 +27,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	game, err := game.New(ctx, cancel, assets)
+	gameInstance, err := game.New(ctx, cancel, assets)
 	if err != nil {
 		slog.Error("failed to create game", slog.Any("error", err))
-		os.Exit(1) // nolint: gocritic
+		os.Exit(1)
 	}
 
-	// run the game and lock the main goroutine
-	if err := ebiten.RunGame(game); err != nil {
+	// Run the game
+	if err := ebiten.RunGame(gameInstance); err != nil {
 		slog.Error("failed to run game", slog.Any("error", err))
 		os.Exit(1)
 	}

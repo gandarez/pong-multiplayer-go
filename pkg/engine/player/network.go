@@ -13,6 +13,7 @@ func NewNetwork(name string, side geometry.Side, screenWidth, screenHeight float
 	return &Network{
 		player: &player{
 			name:          name,
+			side:          side,
 			bouncerHeight: bouncerHeight,
 			bouncerWidth:  bouncerWidth,
 			position: geometry.Vector{
@@ -46,6 +47,11 @@ func (p *Network) Name() string {
 // Position returns the position of the player.
 func (p *Network) Position() geometry.Vector {
 	return p.position
+}
+
+// Side returns the side of the player.
+func (p *Network) Side() geometry.Side {
+	return p.side
 }
 
 // Reset will panic because it is not implemented.
