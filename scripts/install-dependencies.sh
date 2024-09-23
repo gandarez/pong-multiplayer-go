@@ -3,7 +3,7 @@
 install_ubuntu() {
   echo "Detected Ubuntu. Installing dependencies..."
   sudo apt-get update
-  sudo apt-get install -y build-essential libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
+  sudo apt-get install -y build-essential gcc-multilib libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
 }
 
 install_fedora() {
