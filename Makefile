@@ -34,24 +34,15 @@ build-darwin-amd64:
 build-darwin-arm64:
 	GOOS=darwin GOARCH=arm64 $(MAKE) build
 
-build-all-linux: build-linux-386 build-linux-amd64 build-linux-arm build-linux-arm64 build-linux-riscv64
-
-build-linux-386:
-	GOOS=linux GOARCH=386 $(MAKE) build
+build-all-linux: build-linux-amd64 build-linux-arm64 build-linux-riscv64
 
 build-linux-amd64:
 	GOOS=linux GOARCH=amd64 $(MAKE) build
 
-build-linux-arm:
-	GOOS=linux GOARCH=arm $(MAKE) build
-
 build-linux-arm64:
 	GOOS=linux GOARCH=arm64 $(MAKE) build
 
-build-all-windows: build-windows-386 build-windows-amd64 build-windows-arm64
-
-build-windows-386:
-	GOOS=windows GOARCH=386 $(MAKE) build-windows
+build-all-windows: build-windows-amd64 build-windows-arm64
 
 build-windows-amd64:
 	GOOS=windows GOARCH=amd64 $(MAKE) build-windows
