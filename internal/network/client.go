@@ -63,8 +63,8 @@ func (c *Client) Close() {
 
 // SendPlayerInfo sends the player info to the server.
 // It's used to register the player in the server.
-func (c *Client) SendPlayerInfo(pi PlayerInfo) error {
-	if err := c.conn.WriteJSON(pi); err != nil {
+func (c *Client) SendPlayerInfo(gi GameInfo) error {
+	if err := c.conn.WriteJSON(gi); err != nil {
 		return fmt.Errorf("error writing json to connection: %w", err)
 	}
 
