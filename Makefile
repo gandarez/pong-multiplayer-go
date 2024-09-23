@@ -42,6 +42,9 @@ build-linux-amd64:
 build-linux-arm64:
 	GOOS=linux GOARCH=arm64 $(MAKE) build
 
+build-linux-riscv64:
+	GOOS=linux GOARCH=riscv64 $(MAKE) build
+
 build-all-windows: build-windows-amd64 build-windows-arm64
 
 build-windows-amd64:
