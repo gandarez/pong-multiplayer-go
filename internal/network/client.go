@@ -18,6 +18,7 @@ const (
 	readTimeout  = 60 * time.Second
 )
 
+// Client is a client that connects to the server using a websocket connection.
 type Client struct {
 	conn      *websocket.Conn
 	serverURL string
@@ -25,6 +26,7 @@ type Client struct {
 	cancel    context.CancelFunc
 }
 
+// NewClient creates a new client.
 func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string) *Client {
 	return &Client{
 		serverURL: serverURL,
@@ -33,6 +35,7 @@ func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string)
 	}
 }
 
+// Connect connects to the server using a websocket connection.
 func (c *Client) Connect() error {
 	u := fmt.Sprintf("wss://%s/multiplayer", c.serverURL)
 
@@ -41,7 +44,7 @@ func (c *Client) Connect() error {
 
 	conn, _, err := websocket.Dial(ctx, u, nil)
 	if err != nil {
-		return fmt.Errorf("failed to connect to WebSocket at %s: %w", u, err)
+		return fmt.Errorf("failed to connect to websocket at %q: %w", u, err)
 	}
 
 	c.conn = conn
@@ -70,6 +73,7 @@ func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) {
 	}
 }
 
+// Close closes the WebSocket connection.
 func (c *Client) Close() {
 	c.cancel()
 
@@ -78,10 +82,11 @@ func (c *Client) Close() {
 	}
 
 	if err := c.conn.Close(websocket.StatusNormalClosure, "normal closure"); err != nil {
-		slog.Error("error closing WebSocket connection", slog.Any("error", err))
-	} else {
-		slog.Info("websocket connection closed gracefully")
+		slog.Error("failed to close websocket connection", slog.Any("error", err))
+		return
 	}
+
+	slog.Info("websocket connection gracefully closed")
 }
 
 // SendPlayerInfo sends the player info to the server.
