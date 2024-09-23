@@ -149,8 +149,8 @@ func (g *Game) Update() error {
 			}
 
 			// TODO: get player name from input
-			if err := g.networkClient.SendPlayerInfo(network.PlayerInfo{
-				Name:         "Player 1",
+			if err := g.networkClient.SendPlayerInfo(network.GameInfo{
+				PlayerName:   "Player 1",
 				Level:        int(g.menu.Level()),
 				ScreenWidth:  ScreenWidth,
 				ScreenHeight: ScreenHeight,

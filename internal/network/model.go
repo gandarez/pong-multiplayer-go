@@ -26,9 +26,9 @@ type (
 		Ping      int64         `json:"ping"`
 	}
 
-	// PlayerInfo represents the information of a player when it is sent over the network.
-	PlayerInfo struct {
-		Name         string `json:"name"`
+	// GameInfo represents the information of a player when it is sent over the network.
+	GameInfo struct {
+		PlayerName   string `json:"player_name"`
 		Level        int    `json:"level"`
 		ScreenWidth  int    `json:"screen_width"`
 		ScreenHeight int    `json:"screen_height"`

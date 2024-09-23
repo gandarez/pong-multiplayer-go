@@ -82,11 +82,11 @@ func (c *Client) Close() {
 	}
 }
 
-func (c *Client) SendPlayerInfo(pi PlayerInfo) error {
+func (c *Client) SendPlayerInfo(playerInfo GameInfo) error {
 	ctx, cancel := context.WithTimeout(c.ctx, writeWait)
 	defer cancel()
 
-	if err := wsjson.Write(ctx, c.conn, pi); err != nil {
+	if err := wsjson.Write(ctx, c.conn, playerInfo); err != nil {
 		return fmt.Errorf("failed to send player info: %w", err)
 	}
 
