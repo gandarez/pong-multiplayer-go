@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <iframe id="gameFrame" src="main.html" allow="autoplay" style="display: none;"></iframe>
+    <iframe id="gameFrame" src="main.html" allow="autoplay" tabindex="0" style="display: none;"></iframe>
 
     <script>
         const progressBar = document.getElementById('progress-bar');
@@ -28,6 +28,8 @@
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
                         iframe.style.display = 'block';
+
+                        iframe.focus()
                     }, 500);
                 }
             }
