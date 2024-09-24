@@ -43,6 +43,7 @@ func (s *MainMenuState) Update() {
 		}
 	}
 
+	// return to quit the game
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		s.menu.gameMode = Undefined
 		s.menu.readyToPlay = true

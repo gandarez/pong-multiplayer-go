@@ -2,7 +2,9 @@ package menu
 
 import (
 	"log/slog"
+	"math"
 	"regexp"
+	"time"
 	"unicode/utf8"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -20,16 +22,27 @@ var validNameRegexp = regexp.MustCompile(`^[a-zA-Z-\.]+$`)
 
 // InputNameState is the state where the player can input their name.
 type InputNameState struct {
-	menu *Menu
+	cursorVisible bool
+	cursorTicker  *time.Ticker
+	menu          *Menu
 }
 
 var _ State = (*InputNameState)(nil)
 
 // NewInputNameState creates a new InputNameState.
 func NewInputNameState(menu *Menu) *InputNameState {
-	return &InputNameState{
+	state := &InputNameState{
 		menu: menu,
 	}
+
+	state.cursorTicker = time.NewTicker(500 * time.Millisecond)
+	go func() {
+		for range state.cursorTicker.C {
+			state.cursorVisible = !state.cursorVisible
+		}
+	}()
+
+	return state
 }
 
 // Update updates the state.
@@ -107,7 +120,17 @@ func (s *InputNameState) Draw(screen Screen) {
 
 	name := s.menu.playerName
 
-	widthName, _ := text.Measure(name, textFace, 1)
+	widthCursor, _ := text.Measure(name+"_", textFace, 1)
+	widthWithoutCursor, _ := text.Measure(name+"", textFace, 1)
+
+	// get max width to not make text jump
+	widthName := math.Max(widthCursor, widthWithoutCursor)
+
+	// only show cursor if the name is not at max length
+	if s.cursorVisible && len(name) < maxNameLength {
+		name += "_"
+	}
+
 	uiText = ui.Text{
 		Value:    name,
 		FontFace: textFace,
