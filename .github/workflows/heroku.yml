@@ -5,37 +5,47 @@ on:
     branches:
       - master
 
+env:
+  GO_VERSION_FILE: "go.mod"
+  CHECK_LATEST: true
+  GO_CACHE: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - 
+        name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Go
+      - 
+        name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: "go.mod"
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          check-latest: ${{ env.CHECK_LATEST }}
+          cache: ${{ env.GO_CACHE }}
 
-      - name: Build WebAssembly
+      - 
+        name: Build WebAssembly
         run: make build-wasm
 
-      - name: Copy wasm_exec.js and pongo.wasm
+      - 
+        name: Copy wasm_exec.js and pongo.wasm
         run: |
           cp $(go env GOROOT)/misc/wasm/wasm_exec.js web/
 
-      - name: List files in web/ directory
-        run: ls -l web/
-
-      - name: Temporarily commit generated files
+      - 
+        name: Temporarily commit generated files
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add -f web/wasm_exec.js web/pongo.wasm
           git commit -m "Temporary commit: Add WebAssembly files for deployment"
 
-      - name: Deploy to Heroku
+      - 
+        name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
@@ -43,6 +53,3 @@ jobs:
           heroku_email: rene.epcrdz@gmail.com
           branch: master
           dontuseforce: false
-
-      - name: Clean up local commit
-        run: git reset --hard HEAD~1
