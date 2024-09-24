@@ -160,7 +160,7 @@ func (g *Game) Update() error {
 				return fmt.Errorf("failed to send player info: %w", err)
 			}
 
-			g.networkClient.ReceiveGameState(g.networkGameStateCh)
+			go g.networkClient.ReceiveGameState(g.networkGameStateCh)
 
 			go func() {
 				// wait for the connection to be established
