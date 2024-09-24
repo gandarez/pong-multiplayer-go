@@ -17,13 +17,13 @@ func NewNetwork() *Network {
 }
 
 // Angle will panic because it is not implemented.
-func (*Network) Angle() float64 {
-	panic("not implemented")
+func (b *Network) Angle() float64 {
+	return b.angle
 }
 
 // Bounces will panic because it is not implemented.
-func (*Network) Bounces() int {
-	panic("not implemented")
+func (b *Network) Bounces() int {
+	return b.bounces
 }
 
 // Bounds returns the bounds of the ball.

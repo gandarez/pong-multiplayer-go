@@ -27,13 +27,14 @@ type (
 		Ping      int64         `json:"ping"`
 	}
 
-	// GameInfo represents the information of a player when it is sent over the network.
+	// GameInfo represents the information of a game when it is sent over the network.
 	GameInfo struct {
-		PlayerName   string `json:"player_name"`
-		Level        int    `json:"level"`
-		ScreenWidth  int    `json:"screen_width"`
-		ScreenHeight int    `json:"screen_height"`
-		MaxScore     int    `json:"max_score"`
+		PlayerName       string `json:"player_name"`
+		Level            int    `json:"level"`
+		ScreenWidth      int    `json:"screen_width"`
+		ScreenHeight     int    `json:"screen_height"`
+		MaxScore         int    `json:"max_score"`
+		FieldBorderWidth int    `json:"field_border_width"`
 	}
 
 	// PlayerInput represents the keyboard/touch input of the player when it is sent over the network.
