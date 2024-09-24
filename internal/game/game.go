@@ -148,9 +148,8 @@ func (g *Game) Update() error {
 				return fmt.Errorf("failed to connect to the server: %w", err)
 			}
 
-			// TODO: get player name from input
 			if err := g.networkClient.SendPlayerInfo(network.GameInfo{
-				PlayerName:       "Player 1",
+				PlayerName:       g.menu.PlayerName(),
 				Level:            int(g.menu.Level()),
 				ScreenWidth:      ScreenWidth,
 				ScreenHeight:     ScreenHeight,
