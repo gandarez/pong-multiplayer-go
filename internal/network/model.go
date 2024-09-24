@@ -26,7 +26,7 @@ type (
 		Ping      int64         `json:"ping"`
 	}
 
-	// GameInfo represents the information of a game when it is sent over the network.
+	// GameInfo contains the information of a multiplayer game that's sent to the server.
 	GameInfo struct {
 		PlayerName       string `json:"player_name"`
 		Level            int    `json:"level"`
@@ -34,6 +34,15 @@ type (
 		ScreenHeight     int    `json:"screen_height"`
 		MaxScore         int    `json:"max_score"`
 		FieldBorderWidth int    `json:"field_border_width"`
+	}
+
+	// ReadyMessage represents the message sent from the server when the game is ready to start.
+	// It means the players are connected and the game can start.
+	ReadyMessage struct {
+		Ready        bool          `json:"ready"`
+		Name         string        `json:"name"`
+		OpponentName string        `json:"opponent_name"`
+		Side         geometry.Side `json:"side"`
 	}
 
 	// PlayerInput represents the keyboard/touch input of the player when it is sent over the network.

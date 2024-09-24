@@ -54,6 +54,22 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+// ReceiveReadyMessage receives the ready message meaning the game is ready to play.
+func (c *Client) ReceiveReadyMessage(readyCh chan ReadyMessage) error {
+	var msg ReadyMessage
+
+	err := wsjson.Read(c.ctx, c.conn, &msg)
+	if err != nil {
+		slog.Error("failed to read ready message", slog.Any("error", err))
+
+		return err
+	}
+
+	readyCh <- msg
+
+	return nil
+}
+
 // ReceiveGameState receives the game state from the server and sends it to the given channel.
 func (c *Client) ReceiveGameState(gameStateChan chan<- GameState) {
 	defer close(gameStateChan)
@@ -112,8 +128,6 @@ func (c *Client) SendPlayerInput(input PlayerInput) error {
 	if err := wsjson.Write(ctx, c.conn, input); err != nil {
 		return fmt.Errorf("failed to send player input: %w", err)
 	}
-
-	slog.Info("player input sent successfully")
 
 	return nil
 }

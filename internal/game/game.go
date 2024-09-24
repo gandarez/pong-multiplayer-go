@@ -72,6 +72,8 @@ type Game struct {
 	// multiplayer
 	networkClient      *network.Client
 	networkGameStateCh chan network.GameState
+	networkReadyCh     chan network.ReadyMessage
+	readyMessage       network.ReadyMessage
 	pingCurrentPlayer  int64
 	pingOpponent       int64
 
@@ -96,6 +98,7 @@ func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) 
 		menu:               menu.New(font, ScreenWidth),
 		metric:             metric,
 		networkGameStateCh: make(chan network.GameState),
+		networkReadyCh:     make(chan network.ReadyMessage),
 		ready:              sync.Once{},
 		state:              notReady,
 	}, nil
@@ -159,11 +162,20 @@ func (g *Game) Update() error {
 				return fmt.Errorf("failed to send player info: %w", err)
 			}
 
-			go g.networkClient.ReceiveGameState(g.networkGameStateCh)
+			go func() {
+				if err := g.networkClient.ReceiveReadyMessage(g.networkReadyCh); err != nil {
+					slog.Error("failed to receive ready message", slog.Any("error", err))
+				}
+			}()
 
 			go func() {
 				// wait for the connection to be established
-				<-g.networkGameStateCh
+				readyMessage := <-g.networkReadyCh
+				g.readyMessage = readyMessage
+
+				slog.Info("game is ready to play", slog.Any("ready_message", g.readyMessage))
+
+				go g.networkClient.ReceiveGameState(g.networkGameStateCh)
 
 				// TODO: check if start returns an error
 				_ = g.start()
@@ -418,8 +430,15 @@ func (g *Game) start() (errstart error) {
 
 			b = engineball.NewLocal(nextPlayer, ScreenWidth, ScreenHeight, g.menu.Level())
 		case menu.Multiplayer:
-			p1 = engineplayer.NewNetwork("Player 1", geometry.Left, ScreenWidth, ScreenHeight)
-			p2 = engineplayer.NewNetwork("Player 2", geometry.Right, ScreenWidth, ScreenHeight)
+			var opponentSide geometry.Side
+			if g.readyMessage.Side == geometry.Right {
+				opponentSide = geometry.Left
+			} else {
+				opponentSide = geometry.Right
+			}
+
+			p1 = engineplayer.NewNetwork(g.readyMessage.Name, g.readyMessage.Side, ScreenWidth, ScreenHeight)
+			p2 = engineplayer.NewNetwork(g.readyMessage.OpponentName, opponentSide, ScreenWidth, ScreenHeight)
 
 			p1NameWidth, _ := text.Measure(p1.Name(), playerNameTextFace, 1)
 			p2NameWidth, _ := text.Measure(p2.Name(), playerNameTextFace, 1)
