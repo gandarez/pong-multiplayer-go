@@ -1,31 +1,29 @@
 package game
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 )
 
-// fieldBorderWidth is the width of top and bottom field borders.
-const fieldBorderWidth float64 = 10
-
-func (*Game) drawField(screen *ebiten.Image) {
-	// draw field limits
+// drawField draws the game field, common to all game modes.
+func drawField(screen *ebiten.Image) {
+	// Draw field limits (top and bottom borders)
 	for x := 0.; x <= ScreenWidth; x++ {
 		for y := 0.; y <= fieldBorderWidth; y++ {
-			screen.Set(int(x), int(y), color.RGBA{200, 200, 200, 255})
-			screen.Set(int(x), int(y+ScreenHeight-fieldBorderWidth), color.RGBA{200, 200, 200, 255})
+			screen.Set(int(x), int(y), ui.DefaultColor)
+			screen.Set(int(x), int(y+ScreenHeight-fieldBorderWidth), ui.DefaultColor)
 		}
 	}
 
-	// draw delimiter line
-	for squareCount, y := 0, 15; squareCount < 30; squareCount++ {
-		for w := 0; w < 7; w++ {
-			for h := 0; h < 7; h++ {
-				screen.Set(int(ScreenWidth/2)-5+w, h+y, color.RGBA{200, 200, 200, 255})
+	// draw delimiter line (dashed)
+	for squareCount, y := 0, 15.; squareCount < 30; squareCount++ {
+		for w := 0.; w < 7.; w++ {
+			for h := 0.; h < 7.; h++ {
+				screen.Set(int(ScreenWidth/2-5+w), int(h+y), ui.DefaultColor)
 			}
 		}
 
-		y += 17
+		y += 17.
 	}
 }

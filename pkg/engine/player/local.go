@@ -18,6 +18,7 @@ func NewLocal(name string, side geometry.Side, screenWidth, screenHeight, fieldB
 		fieldBorderWidth: fieldBorderWidth,
 		player: &player{
 			name:          name,
+			side:          side,
 			bouncerHeight: bouncerHeight,
 			bouncerWidth:  bouncerWidth,
 			position: geometry.Vector{
@@ -51,6 +52,11 @@ func (p *Local) Name() string {
 // Position returns the position of the player.
 func (p *Local) Position() geometry.Vector {
 	return p.position
+}
+
+// Side returns the side of the player.
+func (p *Local) Side() geometry.Side {
+	return p.side
 }
 
 // Reset resets the position of the player.

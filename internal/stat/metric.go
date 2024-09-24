@@ -63,7 +63,7 @@ func (m *Metric) Draw(screen *ebiten.Image, bounces int, angle float64, lvl leve
 }
 
 // DrawNetworkInfo draws the network information on the screen.
-func (m *Metric) DrawNetworkInfo(screen *ebiten.Image, pingCurrentPlayer, pingOpponent int64) {
+func (m *Metric) DrawNetworkInfo(screen *ebiten.Image, pingCurrentPlayer, pingOpponent int) {
 	pingText := fmt.Sprintf(
 		"me: %4dms | opponent: %4dms",
 		pingCurrentPlayer, pingOpponent,
