@@ -8,24 +8,19 @@ import (
 
 	"github.com/gandarez/pong-multiplayer-go/internal/font"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
-	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
-type player struct {
-	namePosition geometry.Vector
-	engineplayer.Player
-}
-
-func (p *player) draw(screen *ebiten.Image) {
-	for x := 0.0; x < p.BouncerWidth(); x++ {
-		for y := 0.0; y < p.BouncerHeight(); y++ {
-			screen.Set(int(p.Position().X+x), int(p.Position().Y+y), color.RGBA{200, 200, 200, 255})
+// drawPlayer draws a player on the screen.
+func drawPlayer(position geometry.Vector, bouncerWidth, bouncerHeight float64, screen *ebiten.Image) {
+	for x := 0.0; x < bouncerWidth; x++ {
+		for y := 0.0; y < bouncerHeight; y++ {
+			screen.Set(int(position.X+x), int(position.Y+y), ui.DefaultColor)
 		}
 	}
 }
 
-func (p *player) drawName(screen *ebiten.Image, font *font.Font) {
+func drawPlayerName(name string, namePosition geometry.Vector, screen *ebiten.Image, font *font.Font) {
 	textface, err := font.Face("ui", 12)
 	if err != nil {
 		slog.Error("failed to get text face to draw player name", slog.Any("error", err))
@@ -33,11 +28,10 @@ func (p *player) drawName(screen *ebiten.Image, font *font.Font) {
 	}
 
 	t := ui.Text{
-		Value:    p.Name(),
+		Value:    name,
 		FontFace: textface,
-		Position: p.namePosition,
+		Position: namePosition,
 		Color:    color.RGBA{200, 200, 200, 200},
 	}
-
 	t.Draw(screen)
 }

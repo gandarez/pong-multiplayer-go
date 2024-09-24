@@ -11,6 +11,7 @@ import (
 // Local represents the ball in a local game.
 type Local struct {
 	level        level.Level
+	nextSide     geometry.Side
 	screenHeight float64
 	screenWidth  float64
 	speed        float64
@@ -18,12 +19,19 @@ type Local struct {
 }
 
 // NewLocal creates a new ball to play locally.
-// nextSide is the side that the ball will go when the game starts.
 // screenWidth and screenHeight are the dimensions of the screen.
 // lvl is the level of the game.
-func NewLocal(nextSide geometry.Side, screenWidth, screenHeight float64, lvl level.Level) *Local {
+func NewLocal(screenWidth, screenHeight float64, lvl level.Level) *Local {
+	var nextSide geometry.Side
+	if rand.Intn(2) == 0 { // nolint:gosec
+		nextSide = geometry.Left
+	} else {
+		nextSide = geometry.Right
+	}
+
 	return &Local{
 		level:        lvl,
+		nextSide:     nextSide,
 		screenHeight: screenHeight,
 		screenWidth:  screenWidth,
 		speed:        initialSpeed,
@@ -75,8 +83,14 @@ func (b *Local) Position() geometry.Vector {
 }
 
 // Reset resets the position of the ball.
-func (b *Local) Reset(nextSide geometry.Side) Ball {
-	return NewLocal(nextSide, b.screenWidth, b.screenHeight, b.level)
+func (b *Local) Reset() Ball {
+	if b.nextSide == geometry.Left {
+		b.nextSide = geometry.Right
+	} else {
+		b.nextSide = geometry.Left
+	}
+
+	return NewLocal(b.screenWidth, b.screenHeight, b.level)
 }
 
 // SetAngle will panic because it is not implemented.

@@ -42,7 +42,7 @@ func (b *Network) Position() geometry.Vector {
 }
 
 // Reset will panic because it is not implemented.
-func (*Network) Reset(_ geometry.Side) Ball {
+func (*Network) Reset() Ball {
 	panic("not implemented")
 }
 

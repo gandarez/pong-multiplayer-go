@@ -19,6 +19,7 @@ type (
 
 	player struct {
 		name          string
+		side          geometry.Side
 		bouncerHeight float64
 		bouncerWidth  float64
 		position      geometry.Vector
@@ -30,6 +31,7 @@ type (
 		BouncerWidth() float64
 		Bounds() geometry.Rect
 		Name() string
+		Side() geometry.Side
 		Position() geometry.Vector
 		Reset()
 		SetPosition(y float64)

@@ -23,7 +23,8 @@ type (
 		PositionY float64       `json:"position_y"`
 		Side      geometry.Side `json:"side"`
 		Score     int8          `json:"score"`
-		Ping      int64         `json:"ping"`
+		Ping      int           `json:"ping"`
+		Winner    bool          `json:"winner"`
 	}
 
 	// GameInfo contains the information of a multiplayer game that's sent to the server.
@@ -43,6 +44,7 @@ type (
 		Name         string        `json:"name"`
 		OpponentName string        `json:"opponent_name"`
 		Side         geometry.Side `json:"side"`
+		OpponentSide geometry.Side `json:"opponent_side"`
 	}
 
 	// PlayerInput represents the keyboard/touch input of the player when it is sent over the network.

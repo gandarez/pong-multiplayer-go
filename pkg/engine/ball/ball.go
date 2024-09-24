@@ -25,7 +25,7 @@ type (
 		Bounds() geometry.Rect
 		CheckGoal() (bool, geometry.Side)
 		Position() geometry.Vector
-		Reset(nextSide geometry.Side) Ball
+		Reset() Ball
 		SetAngle(angle float64)
 		SetBounces(bounces int)
 		SetPosition(pos geometry.Vector)

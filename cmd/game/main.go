@@ -27,14 +27,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	game, err := game.New(ctx, cancel, assets)
+	gameInstance, err := game.New(ctx, cancel, assets)
 	if err != nil {
 		slog.Error("failed to create game", slog.Any("error", err))
 		os.Exit(1) // nolint: gocritic
 	}
 
 	// run the game and lock the main goroutine
-	if err := ebiten.RunGame(game); err != nil {
+	if err := ebiten.RunGame(gameInstance); err != nil {
 		slog.Error("failed to run game", slog.Any("error", err))
 		os.Exit(1)
 	}
