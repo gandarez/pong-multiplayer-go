@@ -51,7 +51,7 @@ func (s *MainMenuState) Update() {
 }
 
 // Draw draws the state.
-func (s *MainMenuState) Draw(screen Screen) {
+func (s *MainMenuState) Draw(screen *ebiten.Image) {
 	s.drawOptions(screen)
 }
 

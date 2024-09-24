@@ -55,7 +55,7 @@ func (s *LevelSelectionState) Update() {
 }
 
 // Draw draws the state.
-func (s *LevelSelectionState) Draw(screen Screen) {
+func (s *LevelSelectionState) Draw(screen *ebiten.Image) {
 	s.drawOptions(screen)
 }
 

@@ -3,6 +3,7 @@ package menu
 import (
 	"github.com/gandarez/pong-multiplayer-go/internal/font"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // GameMode is the game mode.
@@ -63,7 +64,7 @@ func (m *Menu) Update() {
 }
 
 // Draw draws the menu.
-func (m *Menu) Draw(screen Screen) {
+func (m *Menu) Draw(screen *ebiten.Image) {
 	m.currentState.Draw(screen)
 }
 

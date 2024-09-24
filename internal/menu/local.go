@@ -51,7 +51,7 @@ func (s *LocalModeState) Update() {
 }
 
 // Draw draws the state.
-func (s *LocalModeState) Draw(screen Screen) {
+func (s *LocalModeState) Draw(screen *ebiten.Image) {
 	s.drawOptions(screen)
 }
 

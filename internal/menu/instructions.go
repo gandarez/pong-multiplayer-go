@@ -52,7 +52,7 @@ func (s *InstructionsState) Update() {
 }
 
 // Draw draws the state.
-func (s *InstructionsState) Draw(screen Screen) {
+func (s *InstructionsState) Draw(screen *ebiten.Image) {
 	textFace, err := s.menu.font.Face("ui", 12)
 	if err != nil {
 		return
@@ -78,7 +78,7 @@ func (s *InstructionsState) Draw(screen Screen) {
 			Color: ui.DefaultColor,
 		}
 
-		uiText.Draw(screen.(*ebiten.Image))
+		uiText.Draw(screen)
 
 		y += float64(height)
 	}

@@ -34,7 +34,7 @@ func (s *baseState) navigateOptions(maxOptions int) {
 	}
 }
 
-func (s *baseState) drawOptions(screen Screen) {
+func (s *baseState) drawOptions(screen *ebiten.Image) {
 	textFace, err := s.menu.font.Face("ui", 20)
 	if err != nil {
 		slog.Error("failed to create text face", slog.Any("error", err))
@@ -56,7 +56,7 @@ func (s *baseState) drawOptions(screen Screen) {
 			},
 			Color: ui.DefaultColor,
 		}
-		uiText.Draw(screen.(*ebiten.Image))
+		uiText.Draw(screen)
 
 		maxWidth = math.Max(maxWidth, width)
 
@@ -67,7 +67,7 @@ func (s *baseState) drawOptions(screen Screen) {
 	y = 255.0 + 50.0*float64(s.selectedOption)
 
 	vector.DrawFilledRect(
-		screen.(*ebiten.Image),
+		screen,
 		float32((float64(s.menu.screenWidth)-maxWidth)/2-30), float32(y),
 		15, 15, ui.DefaultColor, true,
 	)

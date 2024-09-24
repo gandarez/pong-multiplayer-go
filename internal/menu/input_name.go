@@ -97,7 +97,7 @@ func (s *InputNameState) Update() {
 }
 
 // Draw draws the state.
-func (s *InputNameState) Draw(screen Screen) {
+func (s *InputNameState) Draw(screen *ebiten.Image) {
 	textFace, err := s.menu.font.Face("ui", 20)
 	if err != nil {
 		slog.Error("failed to create text face", slog.Any("error", err))
@@ -116,7 +116,7 @@ func (s *InputNameState) Draw(screen Screen) {
 		},
 		Color: ui.DefaultColor,
 	}
-	uiText.Draw(screen.(*ebiten.Image))
+	uiText.Draw(screen)
 
 	name := s.menu.playerName
 
@@ -140,7 +140,7 @@ func (s *InputNameState) Draw(screen Screen) {
 		},
 		Color: ui.DefaultColor,
 	}
-	uiText.Draw(screen.(*ebiten.Image))
+	uiText.Draw(screen)
 }
 
 // String returns the state name.
