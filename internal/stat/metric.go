@@ -1,4 +1,4 @@
-package metric
+package stat
 
 import (
 	"fmt"

@@ -18,7 +18,7 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/internal/font"
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
 	"github.com/gandarez/pong-multiplayer-go/internal/network"
-	metric "github.com/gandarez/pong-multiplayer-go/internal/stat"
+	"github.com/gandarez/pong-multiplayer-go/internal/stat"
 	"github.com/gandarez/pong-multiplayer-go/internal/ui"
 	engineball "github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
 	engineplayer "github.com/gandarez/pong-multiplayer-go/pkg/engine/player"
@@ -54,7 +54,7 @@ type Game struct {
 	ctx        context.Context
 	font       *font.Font
 	menu       *menu.Menu
-	metric     *metric.Metric
+	metric     *stat.Metric
 	showMetric bool
 	state      state
 
@@ -86,7 +86,7 @@ func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) 
 	font := font.New(assets)
 
 	// create the metric
-	metric, err := metric.New(font, ScreenWidth)
+	metric, err := stat.New(font, ScreenWidth)
 	if err != nil {
 		slog.Error("failed to create metric", slog.Any("error", err))
 	}
