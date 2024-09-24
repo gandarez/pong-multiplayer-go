@@ -1,15 +1,37 @@
 <!DOCTYPE html>
-<style>
-    body {
-        background-color: #000000;
-    }
-
-    iframe {
-        margin: 0 auto;
-        display: block;
-        border: 0;
-    }
-</style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pongo Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
 <body>
-<iframe src="main.html" width="800" height="600" allow="autoplay"></iframe>
+    <div id="loading-screen">
+        <h2>Loading game, please wait...</h2>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <iframe id="gameFrame" src="main.html" allow="autoplay" tabindex="0" style="display: none;"></iframe>
+
+    <script>
+        const progressBar = document.getElementById('progress-bar');
+        const loadingScreen = document.getElementById('loading-screen');
+        const iframe = document.getElementById('gameFrame');
+
+        window.addEventListener('message', (event) => {
+            if (event.data.progress !== undefined) {
+                const percent = event.data.progress;
+                progressBar.style.width = percent + '%';
+                if (percent >= 100) {
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                }
+            }
+        });
+    </script>
 </body>
+</html>
