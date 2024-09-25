@@ -14,7 +14,7 @@ import (
 
 const instructionsTitle = "Controls"
 
-// Define controls for each player
+// Define controls for each player.
 type Control struct {
 	action string
 	key    string
@@ -74,7 +74,6 @@ func (s *twoPlayersInstructionsState) Draw(screen *ebiten.Image) {
 	if err != nil {
 		slog.Error("failed to draw menu options", slog.Any("error", err))
 	}
-
 }
 
 func (s *twoPlayersInstructionsState) drawTitle(screen *ebiten.Image) (geometry.Vector, error) {
