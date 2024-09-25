@@ -8,8 +8,12 @@ import (
 
 	"github.com/gandarez/pong-multiplayer-go/internal/menu"
 	"github.com/gandarez/pong-multiplayer-go/internal/stat"
+	"github.com/gandarez/pong-multiplayer-go/pkg/engine/ball"
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
+	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
+
+const ballTrailSize = 20
 
 // baseState contains common logic for playing states.
 type baseState struct {
@@ -21,6 +25,7 @@ type baseState struct {
 	showMetric        bool
 	pingCurrentPlayer int
 	pingOpponent      int
+	ballTrail         []geometry.Vector
 }
 
 // newBasePlayingState creates a new baseState.
@@ -37,6 +42,7 @@ func newBasePlayingState(game *Game, lvl level.Level) *baseState {
 		level:     lvl,
 		pauseMenu: pauseMenu,
 		metric:    metric,
+		ballTrail: make([]geometry.Vector, 0, ballTrailSize),
 	}
 }
 
@@ -107,4 +113,14 @@ func (s *baseState) tryDrawMetric(screen *ebiten.Image) {
 		s.game.currentState.getBall().Angle(),
 		s.level,
 	)
+}
+
+// updateBallTrail adds the current ball position to the trail slice
+// maintaining only the last ballTrailSize positions.
+func (s *baseState) updateBallTrail(ball ball.Ball) {
+	s.ballTrail = append([]geometry.Vector{ball.Position()}, s.ballTrail...)
+
+	if len(s.ballTrail) > ballTrailSize {
+		s.ballTrail = s.ballTrail[:ballTrailSize]
+	}
 }
