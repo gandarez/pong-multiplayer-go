@@ -8,6 +8,7 @@ import (
 const (
 	localModeStr    = "Local Mode"
 	multiplayerStr  = "Multiplayer"
+	spectateStr     = "Watch"
 	instructionsStr = "Instructions"
 )
 
@@ -23,7 +24,7 @@ func newMainMenuState(menu *Menu) *mainMenuState {
 	return &mainMenuState{
 		baseState: &baseState{
 			menu:    menu,
-			options: []string{localModeStr, multiplayerStr, instructionsStr},
+			options: []string{localModeStr, multiplayerStr, spectateStr, instructionsStr},
 		},
 	}
 }
@@ -39,6 +40,8 @@ func (s *mainMenuState) Update() {
 		case 1:
 			s.menu.ChangeState(newInputNameState(s.menu))
 		case 2:
+			s.menu.ChangeState(newSpectateSessionsState(s.menu))
+		case 3:
 			s.menu.ChangeState(newInstructionsState(s.menu))
 		}
 	}

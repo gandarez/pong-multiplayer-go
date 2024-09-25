@@ -69,6 +69,11 @@ func (p *Local) SetPosition(y float64) {
 	p.position.Y = y
 }
 
+// SetName sets the name of the player.
+func (p *Local) SetName(name string) {
+	p.name = name
+}
+
 // Update updates the position of the player based on the input.
 func (p *Local) Update(input Input) {
 	switch {

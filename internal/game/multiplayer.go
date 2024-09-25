@@ -174,13 +174,11 @@ func (s *multiplayerState) draw(screen *ebiten.Image) {
 	// draw player1 name
 	if err := drawPlayerName(s.player1.Name(), s.p1NamePosition, screen, s.game.font); err != nil {
 		slog.Error("failed to draw player name", slog.Any("error", err))
-		panic(err)
 	}
 
 	// draw player2 name
 	if err := drawPlayerName(s.player2.Name(), s.p2NamePosition, screen, s.game.font); err != nil {
 		slog.Error("failed to draw player name", slog.Any("error", err))
-		panic(err)
 	}
 
 	// draw metric

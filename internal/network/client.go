@@ -27,9 +27,9 @@ type Client struct {
 }
 
 // NewClient creates a new client.
-func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string) *Client {
+func NewClient(ctx context.Context, cancel context.CancelFunc) *Client {
 	return &Client{
-		serverURL: serverURL,
+		serverURL: BaseURL,
 		ctx:       ctx,
 		cancel:    cancel,
 	}
