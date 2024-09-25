@@ -30,29 +30,29 @@ Select the game mode, level and press Enter to start the game.
 
 Press Esc to go back to the previous menu.`
 
-// InstructionsState is the state where the player can see the game instructions.
-type InstructionsState struct {
+// instructionsState is the state where the player can see the game instructions.
+type instructionsState struct {
 	menu *Menu
 }
 
-var _ State = (*InstructionsState)(nil)
+var _ state = (*instructionsState)(nil)
 
-// NewInstructionsState creates a new InstructionsState.
-func NewInstructionsState(menu *Menu) *InstructionsState {
-	return &InstructionsState{
+// newInstructionsState creates a new InstructionsState.
+func newInstructionsState(menu *Menu) *instructionsState {
+	return &instructionsState{
 		menu: menu,
 	}
 }
 
 // Update updates the state.
-func (s *InstructionsState) Update() {
+func (s *instructionsState) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-		s.menu.ChangeState(NewMainMenuState(s.menu))
+		s.menu.ChangeState(newMainMenuState(s.menu))
 	}
 }
 
 // Draw draws the state.
-func (s *InstructionsState) Draw(screen *ebiten.Image) {
+func (s *instructionsState) Draw(screen *ebiten.Image) {
 	textFace, err := s.menu.font.Face("ui", 12)
 	if err != nil {
 		return
@@ -85,6 +85,6 @@ func (s *InstructionsState) Draw(screen *ebiten.Image) {
 }
 
 // String returns the name of the state.
-func (*InstructionsState) String() string {
+func (*instructionsState) String() string {
 	return "InstructionsState"
 }

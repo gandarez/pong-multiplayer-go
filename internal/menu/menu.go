@@ -29,9 +29,9 @@ type Menu struct {
 	playerName   string
 	screenHeight int
 	screenWidth  int
-	currentState State
+	currentState state
 	// states act as a cache to avoid creating the same state multiple times.
-	states map[string]State
+	states map[string]state
 }
 
 // New creates a new game menu.
@@ -41,16 +41,16 @@ func New(font *font.Font, screenWidth, screenHeight int) *Menu {
 		gameMode:     Undefined,
 		screenWidth:  screenWidth,
 		screenHeight: screenHeight,
-		states:       make(map[string]State),
+		states:       make(map[string]state),
 	}
 
-	menu.ChangeState(NewMainMenuState(menu))
+	menu.ChangeState(newMainMenuState(menu))
 
 	return menu
 }
 
 // ChangeState changes the current state of the menu.
-func (m *Menu) ChangeState(state State) {
+func (m *Menu) ChangeState(state state) {
 	if st, ok := m.states[state.String()]; ok {
 		m.currentState = st
 		return

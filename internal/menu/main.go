@@ -11,16 +11,16 @@ const (
 	instructionsStr = "Instructions"
 )
 
-// MainMenuState is the state where the player can select between local mode, multiplayer or see the instructions.
-type MainMenuState struct {
+// mainMenuState is the state where the player can select between local mode, multiplayer or see the instructions.
+type mainMenuState struct {
 	*baseState
 }
 
-var _ State = (*MainMenuState)(nil)
+var _ state = (*mainMenuState)(nil)
 
-// NewMainMenuState creates a new MainMenuState.
-func NewMainMenuState(menu *Menu) *MainMenuState {
-	return &MainMenuState{
+// newMainMenuState creates a new mainMenuState.
+func newMainMenuState(menu *Menu) *mainMenuState {
+	return &mainMenuState{
 		baseState: &baseState{
 			menu:    menu,
 			options: []string{localModeStr, multiplayerStr, instructionsStr},
@@ -29,17 +29,17 @@ func NewMainMenuState(menu *Menu) *MainMenuState {
 }
 
 // Update updates the state.
-func (s *MainMenuState) Update() {
+func (s *mainMenuState) Update() {
 	s.navigateOptions(len(s.options))
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		switch s.selectedOption {
 		case 0:
-			s.menu.ChangeState(NewLocalModeState(s.menu))
+			s.menu.ChangeState(newLocalModeState(s.menu))
 		case 1:
-			s.menu.ChangeState(NewInputNameState(s.menu))
+			s.menu.ChangeState(newInputNameState(s.menu))
 		case 2:
-			s.menu.ChangeState(NewInstructionsState(s.menu))
+			s.menu.ChangeState(newInstructionsState(s.menu))
 		}
 	}
 
@@ -51,11 +51,11 @@ func (s *MainMenuState) Update() {
 }
 
 // Draw draws the state.
-func (s *MainMenuState) Draw(screen *ebiten.Image) {
+func (s *mainMenuState) Draw(screen *ebiten.Image) {
 	s.drawOptions(screen)
 }
 
 // String returns the state name.
-func (*MainMenuState) String() string {
-	return "MainMenuState"
+func (*mainMenuState) String() string {
+	return "mainMenuState"
 }

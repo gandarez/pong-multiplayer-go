@@ -16,7 +16,7 @@ func drawBall(screen *ebiten.Image, position geometry.Vector, width float64, tra
 	trailLength := len(trail)
 	// draw the trail
 	for i, pos := range trail {
-		alpha := uint8((i * (255 / trailLength))) // decrease opacity for older positions
+		alpha := uint8(float64(i) * (255.0 / float64(trailLength))) // decrease opacity for older positions
 
 		scaledWidth := width * (1.0 - (float64(i)/float64(trailLength))*(float64(i)/float64(trailLength)))
 

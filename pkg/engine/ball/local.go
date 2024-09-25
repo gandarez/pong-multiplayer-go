@@ -23,7 +23,7 @@ type Local struct {
 // lvl is the level of the game.
 func NewLocal(screenWidth, screenHeight float64, lvl level.Level) *Local {
 	var nextSide geometry.Side
-	if rand.IntN(2) == 0 {
+	if rand.IntN(2) == 0 { // nolint:gosec
 		nextSide = geometry.Left
 	} else {
 		nextSide = geometry.Right
@@ -123,10 +123,10 @@ func (b *Local) Width() float64 {
 
 func calcInitialAngle(nextSide geometry.Side) float64 {
 	if nextSide == geometry.Left {
-		return -45 + float64(rand.IntN(91))
+		return -45 + float64(rand.IntN(91)) // nolint:gosec
 	}
 
-	return 135 + float64(rand.IntN(91))
+	return 135 + float64(rand.IntN(91)) // nolint:gosec
 }
 
 // bounce checks if the ball is bouncing on the walls or the players and changes the angle of the ball.
@@ -149,7 +149,9 @@ func (b *Local) checkWallBounce() {
 // bounceOffWall changes the ball's angle when it hits a wall and slightly adjusts its angle randomly.
 func (b *Local) bounceOffWall() {
 	b.angle *= -1
-	b.angle += 5 * (rand.Float64() - 0.5) // Slight random adjustment to avoid flat bounces
+	// nolint:gosec
+	// slight random adjustment to avoid flat bounces
+	b.angle += 5 * (rand.Float64() - 0.5)
 	b.bounces++
 	b.increaseSpeed()
 }
@@ -182,7 +184,7 @@ func (b *Local) bounceOffPaddle() {
 }
 
 func (b *Local) randomBounce() {
-	b.angle = 180 - b.angle - width + 20*rand.Float64()
+	b.angle = 180 - b.angle - width + 20*rand.Float64() // nolint:gosec
 }
 
 func (b *Local) increaseSpeed() {

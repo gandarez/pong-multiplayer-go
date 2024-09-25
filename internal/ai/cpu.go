@@ -7,7 +7,7 @@ const cpuSpeed = 4
 // GuessBallPosition returns the new position of the enemy paddle based on the ball position.
 // It returns the new Y position of the enemy paddle.
 func GuessBallPosition(ballY, enemyY, enemyHeight, screenHeight, fieldBorderWidth float64) float64 {
-	delta := float64(rand.IntN(15))
+	delta := float64(rand.IntN(15)) // nolint:gosec
 
 	if enemyY < ballY-delta {
 		enemyY += cpuSpeed // Move down

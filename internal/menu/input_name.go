@@ -20,18 +20,18 @@ const maxNameLength = 10
 
 var validNameRegexp = regexp.MustCompile(`^[a-zA-Z-\.]+$`)
 
-// InputNameState is the state where the player can input their name.
-type InputNameState struct {
+// inputNameState is the state where the player can input their name.
+type inputNameState struct {
 	cursorVisible bool
 	cursorTicker  *time.Ticker
 	menu          *Menu
 }
 
-var _ State = (*InputNameState)(nil)
+var _ state = (*inputNameState)(nil)
 
-// NewInputNameState creates a new InputNameState.
-func NewInputNameState(menu *Menu) *InputNameState {
-	state := &InputNameState{
+// newInputNameState creates a new inputNameState.
+func newInputNameState(menu *Menu) *inputNameState {
+	state := &inputNameState{
 		menu: menu,
 	}
 
@@ -46,7 +46,7 @@ func NewInputNameState(menu *Menu) *InputNameState {
 }
 
 // Update updates the state.
-func (s *InputNameState) Update() {
+func (s *inputNameState) Update() {
 	for _, char := range ebiten.AppendInputChars(nil) {
 		if !validNameRegexp.MatchString(string(char)) {
 			continue
@@ -92,12 +92,12 @@ func (s *InputNameState) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		s.menu.playerName = ""
-		s.menu.ChangeState(NewMainMenuState(s.menu))
+		s.menu.ChangeState(newMainMenuState(s.menu))
 	}
 }
 
 // Draw draws the state.
-func (s *InputNameState) Draw(screen *ebiten.Image) {
+func (s *inputNameState) Draw(screen *ebiten.Image) {
 	textFace, err := s.menu.font.Face("ui", 20)
 	if err != nil {
 		slog.Error("failed to create text face", slog.Any("error", err))
@@ -144,6 +144,6 @@ func (s *InputNameState) Draw(screen *ebiten.Image) {
 }
 
 // String returns the state name.
-func (*InputNameState) String() string {
-	return "InputNameState"
+func (*inputNameState) String() string {
+	return "inputNameState"
 }

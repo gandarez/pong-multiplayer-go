@@ -13,7 +13,7 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
-// nolint: gochecknoglobals
+// nolint:gochecknoglobals
 var defaultColor = color.RGBA{0, 0, 0, 255}
 
 // Metric represents the game metric.

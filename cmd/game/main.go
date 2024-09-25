@@ -30,7 +30,7 @@ func main() {
 	gameInstance, err := game.New(ctx, cancel, assets)
 	if err != nil {
 		slog.Error("failed to create game", slog.Any("error", err))
-		os.Exit(1) // nolint: gocritic
+		os.Exit(1) // nolint:gocritic
 	}
 
 	// run the game and lock the main goroutine

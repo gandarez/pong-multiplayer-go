@@ -12,9 +12,12 @@ import (
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
 )
 
-const instructionsTitle = "Controls"
+const (
+	instructionsTitle = "Controls"
+	lineHeight        = 30
+)
 
-// Define controls for each player.
+// Control defines controls for each player.
 type Control struct {
 	action string
 	key    string
@@ -46,12 +49,12 @@ func newTwoPlayersInstructionsState(menu *Menu) *twoPlayersInstructionsState {
 func (s *twoPlayersInstructionsState) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		// proceed to level selection after showing the instructions.
-		s.menu.ChangeState(NewLevelSelectionState(s.menu))
+		s.menu.ChangeState(newLevelSelectionState(s.menu))
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		// go back to the LocalModeState.
-		s.menu.ChangeState(NewLocalModeState(s.menu))
+		s.menu.ChangeState(newLocalModeState(s.menu))
 	}
 }
 
@@ -125,7 +128,12 @@ func (s *twoPlayersInstructionsState) drawControls(screen *ebiten.Image, titlePo
 	return nil
 }
 
-func (s *twoPlayersInstructionsState) drawPlayerName(screen *ebiten.Image, controlsFace text.Face, playerName string, x, y float64) {
+func (*twoPlayersInstructionsState) drawPlayerName(
+	screen *ebiten.Image,
+	controlsFace text.Face,
+	playerName string,
+	x, y float64,
+) {
 	playerNameWidth, _ := text.Measure(playerName, controlsFace, 1)
 	playerNamePosition := geometry.Vector{
 		X: x - playerNameWidth/2,
@@ -141,9 +149,12 @@ func (s *twoPlayersInstructionsState) drawPlayerName(screen *ebiten.Image, contr
 	uiText.Draw(screen)
 }
 
-func (s *twoPlayersInstructionsState) drawPlayerControls(screen *ebiten.Image, controlsFace text.Face, controls []Control, startX, startY float64) {
-	lineHeight := 30.0
-
+func (*twoPlayersInstructionsState) drawPlayerControls(
+	screen *ebiten.Image,
+	controlsFace text.Face,
+	controls []Control,
+	startX, startY float64,
+) {
 	for i, control := range controls {
 		y := startY + float64(i)*lineHeight
 		action := control.action
@@ -215,5 +226,5 @@ func (s *twoPlayersInstructionsState) drawMenuOptions(screen *ebiten.Image) erro
 
 // String returns the name of the state.
 func (*twoPlayersInstructionsState) String() string {
-	return "TwoPlayersInstructionsState"
+	return "twoPlayersInstructionsState"
 }
