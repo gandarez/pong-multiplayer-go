@@ -40,7 +40,7 @@ func newTwoPlayersState(game *Game) *twoPlayersState {
 
 // update updates the game logic.
 func (s *twoPlayersState) update() error {
-	// Update common elements
+	// update common elements
 	s.baseState.update()
 
 	if s.gamePaused {

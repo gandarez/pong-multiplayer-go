@@ -32,7 +32,7 @@ type Game struct {
 
 	currentState state
 
-	// Shared resources
+	// shared resources
 	assets        *assets.Assets
 	networkClient *network.Client
 }
@@ -50,7 +50,7 @@ func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) 
 		assets: assets,
 	}
 
-	// Set the initial state to MainMenuState
+	// set the initial state to MainMenuState
 	game.currentState = newMainMenuState(game)
 
 	return game, nil

@@ -40,7 +40,7 @@ func (s *ConnectingState) update() error {
 		s.connectToServer()
 	}
 
-	// Wait until the network ready channel is initialized
+	// wait until the network ready channel is initialized
 	for ready := range s.networkReadyCh {
 		if ready.Ready {
 			s.game.changeState(newMultiplayerState(s.game, ready))

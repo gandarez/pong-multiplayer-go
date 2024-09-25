@@ -42,7 +42,7 @@ func newBasePlayingState(game *Game, lvl level.Level) *baseState {
 
 // update handles common update logic, including pause menu.
 func (s *baseState) update() {
-	// Handle pause menu
+	// handle pause menu
 	if s.pauseMenu.isShown {
 		s.pauseMenu.update()
 
@@ -67,7 +67,7 @@ func (s *baseState) update() {
 		s.showMetric = !s.showMetric
 	}
 
-	// Check for pause input
+	// check for pause input
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) && s.game.currentState.canPause() {
 		s.gamePaused = true
 		s.pauseMenu.show()
@@ -78,13 +78,13 @@ func (s *baseState) update() {
 
 // draw handles common drawing logic, including pause menu.
 func (s *baseState) draw(screen *ebiten.Image) {
-	// Draw the field
+	// draw the field
 	drawField(screen)
 
 	// draw metric if enabled
 	s.tryDrawMetric(screen)
 
-	// Draw pause menu if open
+	// draw pause menu if open
 	if s.gamePaused && s.pauseMenu.isShown {
 		s.pauseMenu.draw(screen)
 	}

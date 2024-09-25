@@ -82,7 +82,7 @@ func (s *multiplayerState) update() error {
 		}
 	}
 
-	// Receive game state from server and update local game state
+	// receive game state from server and update local game state
 	gameState := <-s.networkGameCh
 
 	// update ball and players positions

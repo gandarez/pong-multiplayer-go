@@ -8,7 +8,7 @@ import (
 
 // drawField draws the game field, common to all game modes.
 func drawField(screen *ebiten.Image) {
-	// Draw field limits (top and bottom borders)
+	// draw field limits (top and bottom borders)
 	for x := 0.; x <= ScreenWidth; x++ {
 		for y := 0.; y <= fieldBorderWidth; y++ {
 			screen.Set(int(x), int(y), ui.DefaultColor)
