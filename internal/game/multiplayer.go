@@ -107,7 +107,7 @@ func (s *multiplayerState) update() error {
 
 		s.game.networkClient.Close()
 
-		s.game.changeState(newWinnerState(s.game, winner.Name()))
+		s.game.changeState(newWinnerState(s.game, winner.Name(), s))
 	}
 
 	return nil
@@ -166,9 +166,17 @@ func (s *multiplayerState) draw(screen *ebiten.Image) {
 	s.score1.draw(screen)
 	s.score2.draw(screen)
 
-	// draw player names
-	drawPlayerName(s.player1.Name(), s.p1NamePosition, screen, s.game.font)
-	drawPlayerName(s.player2.Name(), s.p2NamePosition, screen, s.game.font)
+	// draw player1 name
+	if err := drawPlayerName(s.player1.Name(), s.p1NamePosition, screen, s.game.font); err != nil {
+		slog.Error("failed to draw player name", slog.Any("error", err))
+		panic(err)
+	}
+
+	// draw player2 name
+	if err := drawPlayerName(s.player2.Name(), s.p2NamePosition, screen, s.game.font); err != nil {
+		slog.Error("failed to draw player name", slog.Any("error", err))
+		panic(err)
+	}
 
 	// draw metric
 	s.metric.DrawNetworkInfo(screen, s.pingCurrentPlayer, s.pingOpponent)

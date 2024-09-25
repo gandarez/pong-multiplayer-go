@@ -82,7 +82,7 @@ func (s *onePlayerState) update() error {
 			winner = s.player2
 		}
 
-		s.game.changeState(newWinnerState(s.game, winner.Name()))
+		s.game.changeState(newWinnerState(s.game, winner.Name(), s))
 	}
 
 	return nil
