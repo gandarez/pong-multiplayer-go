@@ -31,7 +31,7 @@ func newWinnerState(game *Game, winner string) *winnerState {
 // update updates the winner state.
 func (s *winnerState) update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		s.game.menu = menu.New(s.game.font, ScreenWidth)
+		s.game.menu = menu.New(s.game.font, ScreenWidth, ScreenHeight)
 		s.game.networkClient = nil
 
 		ctx, cancel := context.WithCancel(context.Background())

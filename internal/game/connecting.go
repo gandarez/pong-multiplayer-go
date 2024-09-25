@@ -30,7 +30,7 @@ func NewConnectingState(game *Game) *ConnectingState {
 func (s *ConnectingState) update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		s.game.networkClient.Close()
-		s.game.menu = menu.New(s.game.font, ScreenWidth)
+		s.game.menu = menu.New(s.game.font, ScreenWidth, ScreenHeight)
 		s.game.changeState(newMainMenuState(s.game))
 
 		return nil
