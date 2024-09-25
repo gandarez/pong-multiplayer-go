@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image/color"
 	"log/slog"
 
@@ -20,11 +21,11 @@ func drawPlayer(position geometry.Vector, bouncerWidth, bouncerHeight float64, s
 	}
 }
 
-func drawPlayerName(name string, namePosition geometry.Vector, screen *ebiten.Image, font *font.Font) {
+func drawPlayerName(name string, namePosition geometry.Vector, screen *ebiten.Image, font *font.Font) error {
 	textface, err := font.Face("ui", 12)
 	if err != nil {
 		slog.Error("failed to get text face to draw player name", slog.Any("error", err))
-		return
+		return fmt.Errorf("failed to get text face to draw player name: %w", err)
 	}
 
 	t := ui.Text{
@@ -34,4 +35,6 @@ func drawPlayerName(name string, namePosition geometry.Vector, screen *ebiten.Im
 		Color:    color.RGBA{200, 200, 200, 200},
 	}
 	t.Draw(screen)
+
+	return nil
 }
