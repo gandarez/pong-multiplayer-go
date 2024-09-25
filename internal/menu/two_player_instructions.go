@@ -20,16 +20,16 @@ type Control struct {
 	key    string
 }
 
-// TwoPlayersInstructionsState is the state where the controls for two players are displayed.
-type TwoPlayersInstructionsState struct {
+// twoPlayersInstructionsState is the state where the controls for two players are displayed.
+type twoPlayersInstructionsState struct {
 	menu       *Menu
 	p1Controls []Control
 	p2Controls []Control
 }
 
-// NewTwoPlayersInstructionsState creates a new TwoPlayersInstructionsState.
-func NewTwoPlayersInstructionsState(menu *Menu) *TwoPlayersInstructionsState {
-	return &TwoPlayersInstructionsState{
+// newTwoPlayersInstructionsState creates a new twoPlayersInstructionsState.
+func newTwoPlayersInstructionsState(menu *Menu) *twoPlayersInstructionsState {
+	return &twoPlayersInstructionsState{
 		menu: menu,
 		p1Controls: []Control{
 			{action: "Up", key: "Q"},
@@ -43,7 +43,7 @@ func NewTwoPlayersInstructionsState(menu *Menu) *TwoPlayersInstructionsState {
 }
 
 // Update handles the logic for the TwoPlayersInstructionsState.
-func (s *TwoPlayersInstructionsState) Update() {
+func (s *twoPlayersInstructionsState) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		// proceed to level selection after showing the instructions.
 		s.menu.ChangeState(NewLevelSelectionState(s.menu))
@@ -56,7 +56,7 @@ func (s *TwoPlayersInstructionsState) Update() {
 }
 
 // Draw renders the instructions on the screen.
-func (s *TwoPlayersInstructionsState) Draw(screen *ebiten.Image) {
+func (s *twoPlayersInstructionsState) Draw(screen *ebiten.Image) {
 	// draw the title
 	titlePosition, err := s.drawTitle(screen)
 	if err != nil {
@@ -77,12 +77,7 @@ func (s *TwoPlayersInstructionsState) Draw(screen *ebiten.Image) {
 
 }
 
-// String returns the name of the state.
-func (*TwoPlayersInstructionsState) String() string {
-	return "TwoPlayersInstructionsState"
-}
-
-func (s *TwoPlayersInstructionsState) drawTitle(screen *ebiten.Image) (geometry.Vector, error) {
+func (s *twoPlayersInstructionsState) drawTitle(screen *ebiten.Image) (geometry.Vector, error) {
 	titleFace, err := s.menu.font.Face("ui", 30)
 	if err != nil {
 		return geometry.Vector{}, err
@@ -105,7 +100,7 @@ func (s *TwoPlayersInstructionsState) drawTitle(screen *ebiten.Image) (geometry.
 	return titlePosition, nil
 }
 
-func (s *TwoPlayersInstructionsState) drawControls(screen *ebiten.Image, titlePosition geometry.Vector) error {
+func (s *twoPlayersInstructionsState) drawControls(screen *ebiten.Image, titlePosition geometry.Vector) error {
 	// define positions for columns
 	columnWidth := float64(s.menu.screenWidth) / 2
 	leftColumnX := columnWidth / 2
@@ -131,7 +126,7 @@ func (s *TwoPlayersInstructionsState) drawControls(screen *ebiten.Image, titlePo
 	return nil
 }
 
-func (s *TwoPlayersInstructionsState) drawPlayerName(screen *ebiten.Image, controlsFace text.Face, playerName string, x, y float64) {
+func (s *twoPlayersInstructionsState) drawPlayerName(screen *ebiten.Image, controlsFace text.Face, playerName string, x, y float64) {
 	playerNameWidth, _ := text.Measure(playerName, controlsFace, 1)
 	playerNamePosition := geometry.Vector{
 		X: x - playerNameWidth/2,
@@ -147,7 +142,7 @@ func (s *TwoPlayersInstructionsState) drawPlayerName(screen *ebiten.Image, contr
 	uiText.Draw(screen)
 }
 
-func (s *TwoPlayersInstructionsState) drawPlayerControls(screen *ebiten.Image, controlsFace text.Face, controls []Control, startX, startY float64) {
+func (s *twoPlayersInstructionsState) drawPlayerControls(screen *ebiten.Image, controlsFace text.Face, controls []Control, startX, startY float64) {
 	lineHeight := 30.0
 
 	for i, control := range controls {
@@ -171,7 +166,7 @@ func (s *TwoPlayersInstructionsState) drawPlayerControls(screen *ebiten.Image, c
 	}
 }
 
-func (s *TwoPlayersInstructionsState) drawMenuOptions(screen *ebiten.Image) error {
+func (s *twoPlayersInstructionsState) drawMenuOptions(screen *ebiten.Image) error {
 	instructionsFace, err := s.menu.font.Face("ui", 16)
 	if err != nil {
 		return err
@@ -217,4 +212,9 @@ func (s *TwoPlayersInstructionsState) drawMenuOptions(screen *ebiten.Image) erro
 	uiText.Draw(screen)
 
 	return nil
+}
+
+// String returns the name of the state.
+func (*twoPlayersInstructionsState) String() string {
+	return "TwoPlayersInstructionsState"
 }
