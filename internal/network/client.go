@@ -12,7 +12,8 @@ import (
 
 const (
 	// BaseURL is the base URL of the server.
-	BaseURL = "game.go-go.dev"
+	// BaseURL = "game.go-go.dev"
+	BaseURL = "localhost:8081"
 
 	writeTimeout = 10 * time.Second
 	readTimeout  = 60 * time.Second
@@ -37,7 +38,7 @@ func NewClient(ctx context.Context, cancel context.CancelFunc, serverURL string)
 
 // Connect connects to the server using a websocket connection.
 func (c *Client) Connect() error {
-	u := fmt.Sprintf("wss://%s/multiplayer", c.serverURL)
+	u := fmt.Sprintf("ws://%s/multiplayer", c.serverURL)
 
 	ctx, cancel := context.WithTimeout(c.ctx, writeTimeout)
 	defer cancel()

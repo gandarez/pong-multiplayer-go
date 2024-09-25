@@ -40,6 +40,12 @@ func (s *ConnectingState) update() error {
 		s.connectToServer()
 	}
 
+	if s.connectionError != nil {
+		slog.Error("failed to connect to server", slog.Any("error", s.connectionError))
+
+		return fmt.Errorf("failed to connect to server: %w", s.connectionError)
+	}
+
 	// wait until the network ready channel is initialized
 	for ready := range s.networkReadyCh {
 		if ready.Ready {
