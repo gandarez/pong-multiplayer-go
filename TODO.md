@@ -5,7 +5,6 @@
     * Add ball shadow like a comet.
 * There's a bug when the ball hit the top or behind the paddle.
 * Make title constant unique across the game.
-* For two players mode, add a pre-game screen to show the binding keys for each player.
-* There's a bug in mutliplayer mode that when a client minimizes the screen, the game stops processing inputs and lag.
+* There's a bug in multiplayer mode that when a client minimizes the screen, the game stops processing inputs and lag.
 * Adicionar modo de visualização de partidas online.
 * Adicionar modo de visualização de partidas antigas.
