@@ -12,7 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-const sampleRate = 44100
+const AudioSampleRate = 44100
 
 //go:embed fonts/*.ttf
 var _fonts embed.FS
@@ -97,7 +97,7 @@ func (a *Assets) GetAudioPlayer(audioContext *audio.Context, key string) (*audio
 	}
 
 	// decode the MP3 file
-	d, err := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(data))
+	d, err := mp3.DecodeWithSampleRate(AudioSampleRate, bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode sound %q: %w", key, err)
 	}

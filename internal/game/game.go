@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 
 	"github.com/gandarez/pong-multiplayer-go/assets"
 	"github.com/gandarez/pong-multiplayer-go/internal/font"
@@ -35,19 +36,23 @@ type Game struct {
 	// shared resources
 	assets        *assets.Assets
 	networkClient *network.Client
+	audioContext  *audio.Context
 }
 
 // New creates a new game instance.
-func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) (*Game, error) {
-	font := font.New(assets)
+func New(ctx context.Context, cancel context.CancelFunc, gameAssets *assets.Assets) (*Game, error) {
+	font := font.New(gameAssets)
 	gameMenu := menu.New(font, ScreenWidth, ScreenHeight)
 
+	audioContext := audio.NewContext(assets.AudioSampleRate)
+
 	game := &Game{
-		cancel: cancel,
-		ctx:    ctx,
-		font:   font,
-		menu:   gameMenu,
-		assets: assets,
+		cancel:       cancel,
+		ctx:          ctx,
+		font:         font,
+		menu:         gameMenu,
+		assets:       gameAssets,
+		audioContext: audioContext,
 	}
 
 	// set the initial state to MainMenuState
