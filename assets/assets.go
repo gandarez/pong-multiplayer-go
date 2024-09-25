@@ -7,22 +7,30 @@ import (
 	"maps"
 	"slices"
 
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
+
+const sampleRate = 44100
 
 //go:embed fonts/*.ttf
 var _fonts embed.FS
 
+//go:embed sounds/*.mp3
+var _sounds embed.FS
+
 // Assets contains all the assets of the game.
 type Assets struct {
-	fonts map[string][]byte
+	fonts  map[string][]byte
+	sounds map[string][]byte
 }
 
 // Load loads all the assets of the game.
 func Load() (*Assets, error) {
 	assets := new(Assets)
 
-	// Load fonts
+	// load fonts
 	fonts := map[string]string{
 		"score": "fonts/score.ttf",
 		"stat":  "fonts/stat.ttf",
@@ -38,6 +46,24 @@ func Load() (*Assets, error) {
 		}
 
 		assets.fonts[key] = f
+	}
+
+	// load sounds
+	sounds := map[string]string{
+		"paddle": "sounds/bounce-paddle.mp3",
+		"wall":   "sounds/bounce-wall.mp3",
+		"score":  "sounds/score.mp3",
+	}
+
+	assets.sounds = make(map[string][]byte, len(sounds))
+
+	for key, path := range sounds {
+		s, err := _sounds.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read sound file %q: %w", key, err)
+		}
+
+		assets.sounds[key] = s
 	}
 
 	return assets, nil
@@ -61,4 +87,26 @@ func (a *Assets) NewTextFaceSource(key string) (*text.GoTextFaceSource, error) {
 // AllFonts returns all the fonts keys.
 func (a *Assets) AllFonts() []string {
 	return slices.Collect(maps.Keys(a.fonts))
+}
+
+// GetAudioPlayer returns an audio player for the given sound key.
+func (a *Assets) GetAudioPlayer(audioContext *audio.Context, key string) (*audio.Player, error) {
+	data, ok := a.sounds[key]
+	if !ok {
+		return nil, fmt.Errorf("sound %q not found", key)
+	}
+
+	// decode the MP3 file
+	d, err := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode sound %q: %w", key, err)
+	}
+
+	// create an audio player for the decoded data
+	player, err := audioContext.NewPlayer(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create audio player for %q: %w", key, err)
+	}
+
+	return player, nil
 }
