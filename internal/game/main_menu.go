@@ -34,6 +34,8 @@ func (s *mainMenuState) update() error {
 			s.game.changeState(newTwoPlayersState(s.game))
 		case menu.Multiplayer:
 			s.game.changeState(NewConnectingState(s.game))
+		case menu.Spectator:
+			s.game.changeState(newSpectatorState(s.game))
 		}
 	}
 

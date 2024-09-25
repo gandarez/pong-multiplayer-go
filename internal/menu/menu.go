@@ -18,6 +18,8 @@ const (
 	TwoPlayers
 	// Multiplayer represents a multiplayer game mode.
 	Multiplayer
+	// Spectator represents a spectator game mode.
+	Spectator
 )
 
 // Menu represents the game menu.
@@ -30,8 +32,10 @@ type Menu struct {
 	screenHeight int
 	screenWidth  int
 	currentState state
+
 	// states act as a cache to avoid creating the same state multiple times.
-	states map[string]state
+	states    map[string]state
+	SessionID string
 }
 
 // New creates a new game menu.

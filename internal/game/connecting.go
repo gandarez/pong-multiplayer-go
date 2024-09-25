@@ -64,7 +64,7 @@ func (s *ConnectingState) draw(screen *ebiten.Image) {
 
 // connectToServer connects to the game server.
 func (s *ConnectingState) connectToServer() {
-	s.game.networkClient = network.NewClient(s.game.ctx, s.game.cancel, network.BaseURL)
+	s.game.networkClient = network.NewClient(s.game.ctx, s.game.cancel)
 	if err := s.game.networkClient.Connect(); err != nil {
 		s.connectionError = fmt.Errorf("failed to connect to server: %w", err)
 		return

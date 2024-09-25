@@ -31,6 +31,7 @@ type (
 		BouncerWidth() float64
 		Bounds() geometry.Rect
 		Name() string
+		SetName(name string)
 		Side() geometry.Side
 		Position() geometry.Vector
 		Reset()

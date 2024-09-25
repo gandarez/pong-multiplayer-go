@@ -68,3 +68,8 @@ func (p *Network) SetPosition(y float64) {
 func (*Network) Update(_ Input) {
 	panic("not implemented")
 }
+
+// SetName sets the name of the player.
+func (p *Network) SetName(name string) {
+	p.name = name
+}
