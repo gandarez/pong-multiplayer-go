@@ -86,6 +86,7 @@ func (s *multiplayerState) update() error {
 	gameState := <-s.networkGameCh
 
 	// update ball and players positions
+	s.updateBallTrail(s.ball)
 	s.ball.SetPosition(gameState.Ball.Position)
 	s.ball.SetAngle(gameState.Ball.Angle)
 	s.ball.SetBounces(gameState.Ball.Bounces)
@@ -162,7 +163,7 @@ func (s *multiplayerState) draw(screen *ebiten.Image) {
 	// draw players, ball, and scores
 	drawPlayer(s.player1.Position(), s.player1.BouncerWidth(), s.player1.BouncerHeight(), screen)
 	drawPlayer(s.player2.Position(), s.player2.BouncerWidth(), s.player2.BouncerHeight(), screen)
-	drawBall(s.ball.Position(), s.ball.Width(), screen)
+	drawBall(screen, s.ball.Position(), s.ball.Width(), s.ballTrail)
 	s.score1.draw(screen)
 	s.score2.draw(screen)
 

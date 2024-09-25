@@ -14,11 +14,15 @@ import (
 
 // drawPlayer draws a player on the screen.
 func drawPlayer(position geometry.Vector, bouncerWidth, bouncerHeight float64, screen *ebiten.Image) {
-	for x := 0.0; x < bouncerWidth; x++ {
-		for y := 0.0; y < bouncerHeight; y++ {
-			screen.Set(int(position.X+x), int(position.Y+y), ui.DefaultColor)
-		}
-	}
+	// create bouncer image
+	playerImg := ebiten.NewImage(int(bouncerWidth), int(bouncerHeight))
+	playerImg.Fill(ui.DefaultColor)
+
+	// translate player to the correct position
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(position.X, position.Y)
+
+	screen.DrawImage(playerImg, op)
 }
 
 func drawPlayerName(name string, namePosition geometry.Vector, screen *ebiten.Image, font *font.Font) error {

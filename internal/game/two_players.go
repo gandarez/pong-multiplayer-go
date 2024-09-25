@@ -61,6 +61,7 @@ func (s *twoPlayersState) update() error {
 	s.player2.Update(input2)
 
 	// update ball
+	s.updateBallTrail(s.ball)
 	s.ball.Update(s.player1.Bounds(), s.player2.Bounds())
 
 	// check for goals
@@ -92,7 +93,7 @@ func (s *twoPlayersState) draw(screen *ebiten.Image) {
 	// draw players, ball, and scores
 	drawPlayer(s.player1.Position(), s.player1.BouncerWidth(), s.player1.BouncerHeight(), screen)
 	drawPlayer(s.player2.Position(), s.player2.BouncerWidth(), s.player2.BouncerHeight(), screen)
-	drawBall(s.ball.Position(), s.ball.Width(), screen)
+	drawBall(screen, s.ball.Position(), s.ball.Width(), s.ballTrail)
 	s.score1.draw(screen)
 	s.score2.draw(screen)
 }
