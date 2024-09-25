@@ -69,7 +69,7 @@ func (pm *pauseMenu) update() {
 // draw draws the pause menu.
 func (pm *pauseMenu) draw(screen *ebiten.Image) {
 	// reduce alpha of the background
-	overlay := ebiten.NewImage(int(ScreenWidth), int(ScreenHeight))
+	overlay := ebiten.NewImage(ScreenWidth, ScreenHeight)
 	overlay.Fill(ui.TransparentBlack)
 	screen.DrawImage(overlay, nil)
 

@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -16,15 +17,17 @@ import (
 
 // winnerState represents the state when a player has won the game.
 type winnerState struct {
-	game   *Game
-	winner string
+	game      *Game
+	winner    string
+	prevState state
 }
 
 // newWinnerState creates a new winnerState.
-func newWinnerState(game *Game, winner string) *winnerState {
+func newWinnerState(game *Game, winner string, prevState state) *winnerState {
 	return &winnerState{
-		game:   game,
-		winner: winner,
+		game:      game,
+		winner:    winner,
+		prevState: prevState,
 	}
 }
 
@@ -46,9 +49,44 @@ func (s *winnerState) update() error {
 
 // draw draws the winner screen.
 func (s *winnerState) draw(screen *ebiten.Image) {
+	// draw previous state
+	s.prevState.draw(screen)
+
+	// overlay a semi-transparent layer
+	overlay := ebiten.NewImage(ScreenWidth, ScreenHeight)
+	overlay.Fill(ui.TransparentBlack)
+	screen.DrawImage(overlay, nil)
+
+	textFaceSmall, err := s.game.font.Face("ui", 30)
+	if err != nil {
+		slog.Error("failed to create winner text face", slog.Any("error", err))
+		panic(err)
+	}
+
+	if err := s.drawWinner(screen); err != nil {
+		slog.Error("failed to draw winner", slog.Any("error", err))
+		panic(err)
+	}
+
+	instructionText := "Press Enter to play again"
+	textWidth, _ := text.Measure(instructionText, textFaceSmall, 1)
+
+	uiText := ui.Text{
+		Value:    instructionText,
+		FontFace: textFaceSmall,
+		Position: geometry.Vector{
+			X: (ScreenWidth - textWidth) / 2,
+			Y: 300,
+		},
+		Color: ui.DefaultColor,
+	}
+	uiText.Draw(screen)
+}
+
+func (s *winnerState) drawWinner(screen *ebiten.Image) error {
 	textFaceLarge, err := s.game.font.Face("ui", 40)
 	if err != nil {
-		panic(fmt.Errorf("failed to create winner text face: %w", err))
+		return fmt.Errorf("failed to create winner text face: %w", err)
 	}
 
 	winnerText := fmt.Sprintf("%s WON", s.winner)
@@ -65,24 +103,7 @@ func (s *winnerState) draw(screen *ebiten.Image) {
 	}
 	uiText.Draw(screen)
 
-	textFaceSmall, err := s.game.font.Face("ui", 30)
-	if err != nil {
-		panic(fmt.Errorf("failed to create small text face: %w", err))
-	}
-
-	instructionText := "Press Enter to play again"
-	textWidth, _ = text.Measure(instructionText, textFaceSmall, 1)
-
-	uiText = ui.Text{
-		Value:    instructionText,
-		FontFace: textFaceSmall,
-		Position: geometry.Vector{
-			X: (ScreenWidth - textWidth) / 2,
-			Y: 300,
-		},
-		Color: ui.DefaultColor,
-	}
-	uiText.Draw(screen)
+	return nil
 }
 
 func (*winnerState) getBall() ball.Ball {
