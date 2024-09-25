@@ -14,7 +14,7 @@ import (
 
 const (
 	// maxScore is the maximum score to win the game.
-	maxScore = 1
+	maxScore = 10
 	// ScreenWidth is the width of the screen.
 	ScreenWidth = 640
 	// ScreenHeight is the height of the screen.
