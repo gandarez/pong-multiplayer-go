@@ -16,6 +16,7 @@ const title = "PONGO"
 func main() {
 	ebiten.SetWindowSize(int(game.ScreenWidth)*2, int(game.ScreenHeight)*2)
 	ebiten.SetWindowTitle(title)
+	ebiten.SetRunnableOnUnfocused(true)
 
 	// load all assets
 	assets, err := assets.Load()
