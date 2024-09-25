@@ -83,33 +83,31 @@ func (s *multiplayerState) update() error {
 	}
 
 	// Receive game state from server and update local game state
-	select {
-	case gameState := <-s.networkGameCh:
-		// update ball and players positions
-		s.ball.SetPosition(gameState.Ball.Position)
-		s.ball.SetAngle(gameState.Ball.Angle)
-		s.ball.SetBounces(gameState.Ball.Bounces)
+	gameState := <-s.networkGameCh
 
-		// update player positions and scores
-		s.updatePlayerPositions(gameState)
-		s.updateScores(gameState)
+	// update ball and players positions
+	s.ball.SetPosition(gameState.Ball.Position)
+	s.ball.SetAngle(gameState.Ball.Angle)
+	s.ball.SetBounces(gameState.Ball.Bounces)
 
-		// update ping
-		s.pingCurrentPlayer = gameState.CurrentPlayer.Ping
-		s.pingOpponent = gameState.OpponentPlayer.Ping
+	// update player positions and scores
+	s.updatePlayerPositions(gameState)
+	s.updateScores(gameState)
 
-		// check for winner
-		if gameState.CurrentPlayer.Winner || gameState.OpponentPlayer.Winner {
-			winner := s.player1
-			if gameState.OpponentPlayer.Winner {
-				winner = s.player2
-			}
+	// update ping
+	s.pingCurrentPlayer = gameState.CurrentPlayer.Ping
+	s.pingOpponent = gameState.OpponentPlayer.Ping
 
-			s.game.networkClient.Close()
-
-			s.game.changeState(newWinnerState(s.game, winner.Name()))
+	// check for winner
+	if gameState.CurrentPlayer.Winner || gameState.OpponentPlayer.Winner {
+		winner := s.player1
+		if gameState.OpponentPlayer.Winner {
+			winner = s.player2
 		}
-	default:
+
+		s.game.networkClient.Close()
+
+		s.game.changeState(newWinnerState(s.game, winner.Name()))
 	}
 
 	return nil
