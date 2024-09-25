@@ -86,3 +86,7 @@ test:
 .PHONY: lint
 lint: install-linter
 	golangci-lint run ./...
+
+.PHONY: run
+run:
+	go run ./cmd/game/main.go
