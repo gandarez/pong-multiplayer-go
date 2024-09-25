@@ -39,7 +39,7 @@ func (s *LocalModeState) Update() {
 			s.menu.ChangeState(NewLevelSelectionState(s.menu))
 		case 1:
 			s.menu.gameMode = TwoPlayers
-			s.menu.ChangeState(NewLevelSelectionState(s.menu))
+			s.menu.ChangeState(NewTwoPlayersInstructionsState(s.menu))
 		case 2:
 			s.menu.ChangeState(NewMainMenuState(s.menu))
 		}

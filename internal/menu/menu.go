@@ -27,6 +27,7 @@ type Menu struct {
 	level        level.Level
 	readyToPlay  bool
 	playerName   string
+	screenHeight int
 	screenWidth  int
 	currentState State
 	// states act as a cache to avoid creating the same state multiple times.
@@ -34,12 +35,13 @@ type Menu struct {
 }
 
 // New creates a new game menu.
-func New(font *font.Font, screenWidth int) *Menu {
+func New(font *font.Font, screenWidth, screenHeight int) *Menu {
 	menu := &Menu{
-		font:        font,
-		gameMode:    Undefined,
-		screenWidth: screenWidth,
-		states:      make(map[string]State),
+		font:         font,
+		gameMode:     Undefined,
+		screenWidth:  screenWidth,
+		screenHeight: screenHeight,
+		states:       make(map[string]State),
 	}
 
 	menu.ChangeState(NewMainMenuState(menu))

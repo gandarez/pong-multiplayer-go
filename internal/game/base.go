@@ -48,7 +48,7 @@ func (s *baseState) update() {
 
 		if s.pauseMenu.ShouldExit {
 			// force reset the menu
-			s.game.menu = menu.New(s.game.font, ScreenWidth)
+			s.game.menu = menu.New(s.game.font, ScreenWidth, ScreenHeight)
 			s.game.changeState(newMainMenuState(s.game))
 
 			return

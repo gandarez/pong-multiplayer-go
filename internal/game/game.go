@@ -40,7 +40,7 @@ type Game struct {
 // New creates a new game instance.
 func New(ctx context.Context, cancel context.CancelFunc, assets *assets.Assets) (*Game, error) {
 	font := font.New(assets)
-	gameMenu := menu.New(font, ScreenWidth)
+	gameMenu := menu.New(font, ScreenWidth, ScreenHeight)
 
 	game := &Game{
 		cancel: cancel,
