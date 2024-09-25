@@ -34,11 +34,11 @@ func newMultiplayerState(game *Game, ready network.ReadyMessage) *multiplayerSta
 	player1 := player.NewNetwork(ready.Name, ready.Side, ScreenWidth, ScreenHeight)
 	player2 := player.NewNetwork(ready.OpponentName, ready.OpponentSide, ScreenWidth, ScreenHeight)
 	ball := ball.NewNetwork()
-	score1 := newScore1(base.game.font)
-	score2 := newScore2(base.game.font)
+	score1 := newScore1(base.game.font) // left
+	score2 := newScore2(base.game.font) // right
 
 	// calculate player name position
-	p1NamePosition, p2NamePosition := calculatePlayerNamePosition(*game.font, player1.Name(), player2.Name())
+	p1NamePosition, p2NamePosition := calculatePlayerNamePosition(*game.font, player1.Name(), player2.Name(), player1.Side())
 
 	networkGameCh := make(chan network.GameState)
 
@@ -125,7 +125,7 @@ func (s *multiplayerState) updatePlayerPositions(gameState network.GameState) {
 }
 
 func (s *multiplayerState) updateScores(gameState network.GameState) {
-	if s.player1.Side() == gameState.CurrentPlayer.Side {
+	if s.player1.Side() == geometry.Left {
 		s.score1.value = gameState.CurrentPlayer.Score
 		s.score2.value = gameState.OpponentPlayer.Score
 	} else {
@@ -134,7 +134,7 @@ func (s *multiplayerState) updateScores(gameState network.GameState) {
 	}
 }
 
-func calculatePlayerNamePosition(font font.Font, p1name, p2name string) (geometry.Vector, geometry.Vector) {
+func calculatePlayerNamePosition(font font.Font, p1name, p2name string, p1Side geometry.Side) (geometry.Vector, geometry.Vector) {
 	playerNameTextFace, _ := font.Face("ui", 20)
 	scoreTextFace, _ := font.Face("score", 44)
 
@@ -151,6 +151,10 @@ func calculatePlayerNamePosition(font font.Font, p1name, p2name string) (geometr
 	p2NamePosition := geometry.Vector{
 		X: ScreenWidth/2 + 10 + (p2NameWidth / 2),
 		Y: scoreHeight + 50,
+	}
+
+	if p1Side == geometry.Right {
+		return p2NamePosition, p1NamePosition
 	}
 
 	return p1NamePosition, p2NamePosition
