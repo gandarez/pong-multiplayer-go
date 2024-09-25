@@ -140,7 +140,9 @@ func (b *Local) checkWallBounce() {
 	if b.position.Y <= width {
 		b.position.Y = width
 		b.bounceOffWall()
-	} else if b.position.Y >= b.screenHeight-b.width-width {
+	}
+
+	if b.position.Y >= b.screenHeight-b.width-width {
 		b.position.Y = b.screenHeight - b.width - width
 		b.bounceOffWall()
 	}
@@ -148,32 +150,25 @@ func (b *Local) checkWallBounce() {
 
 // bounceOffWall changes the ball's angle when it hits a wall and slightly adjusts its angle randomly.
 func (b *Local) bounceOffWall() {
+	b.bounces++
 	b.angle *= -1
 	// nolint:gosec
 	// slight random adjustment to avoid flat bounces
 	b.angle += 5 * (rand.Float64() - 0.5)
-	b.bounces++
 	b.increaseSpeed()
 }
 
 // checkPaddleBounce checks if the ball is hitting one of the paddles and bounces off.
 func (b *Local) checkPaddleBounce(p1Bounds, p2Bounds geometry.Rect) {
-	if b.isCollidingWithPaddle(p1Bounds) {
+	if b.ball.Bounds().Intersects(p1Bounds) {
 		b.position.X = p1Bounds.X + p1Bounds.Width + width
 		b.bounceOffPaddle()
-	} else if b.isCollidingWithPaddle(p2Bounds) {
+	}
+
+	if b.ball.Bounds().Intersects(p2Bounds) {
 		b.position.X = p2Bounds.X - b.width
 		b.bounceOffPaddle()
 	}
-}
-
-// isCollidingWithPaddle checks if the ball is colliding with the given paddle's bounds.
-func (b *Local) isCollidingWithPaddle(paddle geometry.Rect) bool {
-	paddleLeft, paddleRight := paddle.X, paddle.X+paddle.Width
-	paddleTop, paddleBottom := paddle.Y, paddle.Y+paddle.Height
-
-	return b.position.X+b.width >= paddleLeft && b.position.X <= paddleRight &&
-		b.position.Y+b.width >= paddleTop && b.position.Y <= paddleBottom
 }
 
 // bounceOffPaddle changes the ball's angle when it hits a paddle and slightly randomizes the angle.

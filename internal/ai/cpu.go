@@ -17,9 +17,7 @@ func GuessBallPosition(ballY, enemyY, enemyHeight, screenHeight, fieldBorderWidt
 		enemyY -= cpuSpeed // Move up
 	}
 
-	enemyY = keepInBounds(enemyY, enemyHeight, screenHeight, fieldBorderWidth)
-
-	return enemyY
+	return keepInBounds(enemyY, enemyHeight, screenHeight, fieldBorderWidth)
 }
 
 func keepInBounds(y, height, screenHeight, fieldBorderWidth float64) float64 {
