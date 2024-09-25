@@ -2,7 +2,7 @@ package ball
 
 import (
 	"math"
-	"math/rand"
+	"math/rand/v2"
 
 	"github.com/gandarez/pong-multiplayer-go/pkg/engine/level"
 	"github.com/gandarez/pong-multiplayer-go/pkg/geometry"
@@ -23,7 +23,7 @@ type Local struct {
 // lvl is the level of the game.
 func NewLocal(screenWidth, screenHeight float64, lvl level.Level) *Local {
 	var nextSide geometry.Side
-	if rand.Intn(2) == 0 { // nolint:gosec
+	if rand.IntN(2) == 0 {
 		nextSide = geometry.Left
 	} else {
 		nextSide = geometry.Right
@@ -123,34 +123,66 @@ func (b *Local) Width() float64 {
 
 func calcInitialAngle(nextSide geometry.Side) float64 {
 	if nextSide == geometry.Left {
-		return -45 + float64(rand.Intn(91)) // nolint:gosec
+		return -45 + float64(rand.IntN(91))
 	}
 
-	return 135 + float64(rand.Intn(91)) // nolint:gosec
+	return 135 + float64(rand.IntN(91))
 }
 
 // bounce checks if the ball is bouncing on the walls or the players and changes the angle of the ball.
 func (b *Local) bounce(p1Bounds, p2Bounds geometry.Rect) {
-	// top wall or bottom wall
-	if b.position.Y <= width || b.position.Y >= b.screenHeight-b.width-width {
-		b.angle *= -1
-		b.bounces++
+	b.checkWallBounce()
+	b.checkPaddleBounce(p1Bounds, p2Bounds)
+}
 
-		b.increaseSpeed()
-	}
-
-	// left bouncer or right bouncer
-	if p1Bounds.Intersects(b.Bounds()) || p2Bounds.Intersects(b.Bounds()) {
-		b.bounces++
-
-		b.randomBounce()
-		b.increaseSpeed()
+// checkWallBounce checks if the ball bounces off the top or bottom walls.
+func (b *Local) checkWallBounce() {
+	if b.position.Y <= width {
+		b.position.Y = width
+		b.bounceOffWall()
+	} else if b.position.Y >= b.screenHeight-b.width-width {
+		b.position.Y = b.screenHeight - b.width - width
+		b.bounceOffWall()
 	}
 }
 
-// randomBounce changes the angle of the ball randomly.
+// bounceOffWall changes the ball's angle when it hits a wall and slightly adjusts its angle randomly.
+func (b *Local) bounceOffWall() {
+	b.angle *= -1
+	b.angle += 5 * (rand.Float64() - 0.5) // Slight random adjustment to avoid flat bounces
+	b.bounces++
+	b.increaseSpeed()
+}
+
+// checkPaddleBounce checks if the ball is hitting one of the paddles and bounces off.
+func (b *Local) checkPaddleBounce(p1Bounds, p2Bounds geometry.Rect) {
+	if b.isCollidingWithPaddle(p1Bounds) {
+		b.position.X = p1Bounds.X + p1Bounds.Width + width
+		b.bounceOffPaddle()
+	} else if b.isCollidingWithPaddle(p2Bounds) {
+		b.position.X = p2Bounds.X - b.width
+		b.bounceOffPaddle()
+	}
+}
+
+// isCollidingWithPaddle checks if the ball is colliding with the given paddle's bounds.
+func (b *Local) isCollidingWithPaddle(paddle geometry.Rect) bool {
+	paddleLeft, paddleRight := paddle.X, paddle.X+paddle.Width
+	paddleTop, paddleBottom := paddle.Y, paddle.Y+paddle.Height
+
+	return b.position.X+b.width >= paddleLeft && b.position.X <= paddleRight &&
+		b.position.Y+b.width >= paddleTop && b.position.Y <= paddleBottom
+}
+
+// bounceOffPaddle changes the ball's angle when it hits a paddle and slightly randomizes the angle.
+func (b *Local) bounceOffPaddle() {
+	b.bounces++
+	b.randomBounce()
+	b.increaseSpeed()
+}
+
 func (b *Local) randomBounce() {
-	b.angle = 180 - b.angle - width + 20*rand.Float64() // nolint:gosec
+	b.angle = 180 - b.angle - width + 20*rand.Float64()
 }
 
 func (b *Local) increaseSpeed() {
