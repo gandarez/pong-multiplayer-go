@@ -9,6 +9,7 @@ The classic pong game written in Go with multiplayer support.
 - Single player
 - Two players
 - Multiplayer
+- Watch
 
 ### Single player
 
@@ -22,6 +23,10 @@ The classic pong game written in Go with multiplayer support.
 ### Multiplayer
 
 To play in multiplayer mode, you need to run the [server](https://github.com/reneepc/pongo-server/) and the game.
+
+### Watcg
+
+In watch mode you can see games in progress.
 
 #### Server
 
